@@ -27,12 +27,6 @@ export function DnsManagerModal({ domainId, domainName, isOpen, onClose }: DnsMa
   const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (isOpen && domainId) {
-      fetchRecords();
-    }
-  }, [isOpen, domainId]);
-
   const fetchRecords = async () => {
     setLoading(true);
     setError("");
@@ -47,6 +41,12 @@ export function DnsManagerModal({ domainId, domainName, isOpen, onClose }: DnsMa
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isOpen && domainId) {
+      fetchRecords();
+    }
+  }, [isOpen, domainId]);
 
   const handleDelete = async (recordId: string) => {
     if (!confirm("Yakin ingin menghapus DNS Record ini?")) return;
