@@ -5,7 +5,7 @@ import { Topbar } from "@/components/modules/Topbar";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
-import { Input, Select } from "@/components/ui/Input";
+import { Input, Select, CurrencyInput } from "@/components/ui/Input";
 import { ProjectData, ClientData } from "@/lib/db/store";
 import { ProjectStatus, PROJECT_STATUS_MAP } from "@/types/status";
 import { formatCurrency } from "@/lib/services/invoice/calculator";
@@ -26,7 +26,8 @@ import {
   Trash2,
   Receipt,
   Search,
-  Filter
+  Filter,
+  Loader2
 } from "lucide-react";
 import Link from "next/link";
 
@@ -45,6 +46,7 @@ export default function ProjectsPage() {
   const [viewMode, setViewMode] = useState<"kanban" | "table">("kanban");
   const [searchQuery, setSearchQuery] = useState("");
   const [hideCompleted, setHideCompleted] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [draggedProjectId, setDraggedProjectId] = useState<string | null>(null);
   const [dragOverCol, setDragOverCol] = useState<ProjectStatus | null>(null);
 
@@ -124,19 +126,25 @@ export default function ProjectsPage() {
   };
 
   const handleStatusChange = async (projectId: string, nextStatus: ProjectStatus) => {
+    // Optimistic UI Update
+    const previousProjects = [...projects];
+    setProjects((prev) =>
+      prev.map((p) => (p.id === projectId ? { ...p, status: nextStatus } : p))
+    );
+
     try {
       const res = await fetch(`/api/projects/${projectId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: nextStatus }),
       });
-      if (res.ok) {
-        setProjects((prev) =>
-          prev.map((p) => (p.id === projectId ? { ...p, status: nextStatus } : p))
-        );
+      if (!res.ok) {
+        setProjects(previousProjects);
+        alert("Gagal memperbarui status proyek");
       }
     } catch (err) {
       console.error(err);
+      setProjects(previousProjects);
     }
   };
 
@@ -183,8 +191,13 @@ export default function ProjectsPage() {
 
   const handleDelete = async (id: string, name: string) => {
     if (confirm(`Hapus proyek "${name}"?`)) {
-      await fetch(`/api/projects/${id}`, { method: "DELETE" });
-      fetchData();
+      setDeletingId(id);
+      try {
+        await fetch(`/api/projects/${id}`, { method: "DELETE" });
+        fetchData();
+      } finally {
+        setDeletingId(null);
+      }
     }
   };
 
@@ -365,9 +378,10 @@ export default function ProjectsPage() {
                             </button>
                             <button
                               onClick={() => handleDelete(p.id, p.name)}
-                              className="p-1 text-slate-400 hover:text-rose-600 rounded"
+                              disabled={deletingId === p.id}
+                              className={`p-1 text-slate-400 hover:text-rose-600 rounded ${deletingId === p.id ? 'opacity-50 cursor-wait' : ''}`}
                             >
-                              <Trash2 className="w-3 h-3" />
+                              {deletingId === p.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
                             </button>
                           </div>
                         </div>
@@ -491,10 +505,11 @@ export default function ProjectsPage() {
                           </button>
                           <button
                             onClick={() => handleDelete(p.id, p.name)}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 rounded"
+                            disabled={deletingId === p.id}
+                            className={`p-1.5 text-slate-400 hover:text-rose-600 rounded ${deletingId === p.id ? 'opacity-50 cursor-wait' : ''}`}
                             title="Hapus"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            {deletingId === p.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
                           </button>
                         </td>
                       </tr>
@@ -601,13 +616,11 @@ export default function ProjectsPage() {
             />
           </div>
 
-          <Input
+          <CurrencyInput
             label="Estimasi / Nilai Kontrak (IDR)"
-            type="number"
-            min={0}
             required
-            value={formData.value || ""}
-            onChange={(e) => setFormData({ ...formData, value: Number(e.target.value) })}
+            value={formData.value}
+            onChange={(val) => setFormData({ ...formData, value: val })}
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

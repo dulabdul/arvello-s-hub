@@ -6,7 +6,7 @@ import { Topbar } from "@/components/modules/Topbar";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
-import { Input, Select } from "@/components/ui/Input";
+import { Input, Select, CurrencyInput } from "@/components/ui/Input";
 import { InvoiceData, ClientData, ProjectData } from "@/lib/db/store";
 import { INVOICE_STATUS_MAP } from "@/types/status";
 import {
@@ -605,14 +605,12 @@ function InvoicesContent() {
                     />
                   </div>
                   <div className="col-span-7 sm:col-span-3">
-                    <input
-                      type="number"
-                      min={0}
+                    <CurrencyInput
                       placeholder="Tarif"
                       required
-                      value={item.rate}
-                      onChange={(e) => handleItemChange(idx, "rate", e.target.value === "" ? "" : Number(e.target.value))}
-                      className="w-full text-xs px-2.5 py-1.5 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
+                      value={Number(item.rate)}
+                      onChange={(val) => handleItemChange(idx, "rate", val)}
+                      className="!h-8 !text-xs !pl-8"
                     />
                   </div>
                   <div className="col-span-2 sm:col-span-1 text-center">
@@ -653,12 +651,10 @@ function InvoicesContent() {
               </div>
               <div>
                 <label className="text-[11px] text-slate-500">Diskon Khusus:</label>
-                <input
-                  type="number"
-                  min={0}
-                  value={discount}
-                  onChange={(e) => setDiscount(e.target.value === "" ? "" : Number(e.target.value))}
-                  className="w-full mt-1 text-xs px-2 py-1 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
+                <CurrencyInput
+                  value={Number(discount)}
+                  onChange={(val) => setDiscount(val)}
+                  className="!h-7 mt-1 !text-xs !pl-8"
                 />
               </div>
             </div>

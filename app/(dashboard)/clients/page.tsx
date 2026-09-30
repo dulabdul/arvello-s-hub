@@ -17,6 +17,7 @@ import {
   Edit2,
   Trash2,
   FolderPlus,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -24,6 +25,7 @@ export default function ClientsPage() {
   const [clients, setClients] = useState<ClientData[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -117,8 +119,13 @@ export default function ClientsPage() {
 
   const handleDelete = async (id: string, name: string) => {
     if (confirm(`Apakah Anda yakin ingin menghapus data klien "${name}"?`)) {
-      await fetch(`/api/clients/${id}`, { method: "DELETE" });
-      fetchClients();
+      setDeletingId(id);
+      try {
+        await fetch(`/api/clients/${id}`, { method: "DELETE" });
+        fetchClients();
+      } finally {
+        setDeletingId(null);
+      }
     }
   };
 
@@ -242,10 +249,11 @@ export default function ClientsPage() {
                     </button>
                     <button
                       onClick={() => handleDelete(client.id, client.name)}
-                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors"
+                      disabled={deletingId === client.id}
+                      className={`p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors ${deletingId === client.id ? 'opacity-50 cursor-wait' : ''}`}
                       title="Hapus Klien"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      {deletingId === client.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>

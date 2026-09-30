@@ -100,6 +100,7 @@ model Invoice {
   paidAt      DateTime?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+  transaction Transaction?
 }
 
 enum TransactionType {
@@ -116,6 +117,7 @@ model Transaction {
   date        DateTime        @default(now())
   
   invoiceId   String?         @unique
+  invoice     Invoice?        @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt

@@ -50,19 +50,24 @@ export function Modal({
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[60] flex flex-col sm:items-center sm:justify-center justify-end sm:p-4">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
         onClick={onClose}
       />
 
-      {/* Modal Dialog */}
+      {/* Modal / Bottom Sheet Dialog */}
       <div
-        className={`relative w-full ${maxWidths[maxWidth]} bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl p-6 z-10 animate-in zoom-in-95 duration-150 max-h-[90vh] flex flex-col`}
+        className={`relative w-full ${maxWidths[maxWidth]} bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-t-3xl sm:rounded-2xl shadow-2xl p-6 z-10 
+          animate-in slide-in-from-bottom-[100%] sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-300 
+          max-h-[90vh] sm:max-h-[85vh] flex flex-col safe-area-bottom pb-[calc(1.5rem+env(safe-area-inset-bottom))]`}
       >
+        {/* Mobile Pull Indicator */}
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full sm:hidden" />
+
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+        <div className="flex items-start justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800 mt-2 sm:mt-0">
           <div>
             <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{title}</h3>
             {description && (

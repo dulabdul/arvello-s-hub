@@ -10,6 +10,7 @@ import { TransactionModal } from "@/components/modules/TransactionModal";
 import { ExportCSVButton } from "@/components/modules/ExportCSVButton";
 import { PeriodFilter } from "@/components/modules/PeriodFilter";
 import { DeleteTransactionButton } from "@/components/modules/DeleteTransactionButton";
+import { TransactionList } from "@/components/modules/TransactionList";
 
 export const dynamic = 'force-dynamic';
 
@@ -30,7 +31,7 @@ export default async function FinancePage(props: { searchParams: Promise<{ perio
   }
 
   const summary = await getFinancialSummary(startDate, endDate);
-  const transactions = await getTransactions(10); // get last 10
+  const transactions = await getTransactions(undefined, startDate, endDate);
 
   const chartData = summary.monthlyData;
 
@@ -50,7 +51,8 @@ export default async function FinancePage(props: { searchParams: Promise<{ perio
 
       <div className="p-6 max-w-7xl mx-auto w-full space-y-6">
         {/* KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-6 sm:overflow-visible sm:pb-0 scrollbar-hide -mx-6 px-6 sm:mx-0 sm:px-0">
+          <div className="min-w-[85vw] sm:min-w-0 snap-center">
           <Card className="p-6 border-l-4 border-l-brand-success">
             <div className="flex justify-between items-start">
               <div>
@@ -64,6 +66,9 @@ export default async function FinancePage(props: { searchParams: Promise<{ perio
               </div>
             </div>
           </Card>
+          </div>
+
+          <div className="min-w-[85vw] sm:min-w-0 snap-center">
 
           <Card className="p-6 border-l-4 border-l-brand-danger">
             <div className="flex justify-between items-start">
@@ -78,6 +83,9 @@ export default async function FinancePage(props: { searchParams: Promise<{ perio
               </div>
             </div>
           </Card>
+          </div>
+
+          <div className="min-w-[85vw] sm:min-w-0 snap-center">
 
           <Card className="p-6 border-l-4 border-l-brand-primary">
             <div className="flex justify-between items-start">
@@ -92,6 +100,8 @@ export default async function FinancePage(props: { searchParams: Promise<{ perio
               </div>
             </div>
           </Card>
+          </div>
+          <div className="min-w-[85vw] sm:min-w-0 snap-center">
           <Card className="p-6 border-l-4 border-l-amber-500">
             <div className="flex justify-between items-start">
               <div>
@@ -105,6 +115,7 @@ export default async function FinancePage(props: { searchParams: Promise<{ perio
               </div>
             </div>
           </Card>
+          </div>
         </div>
 
         {/* Chart Section */}
@@ -137,64 +148,9 @@ export default async function FinancePage(props: { searchParams: Promise<{ perio
         {/* Tables Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Transactions Table */}
-          <Card className="overflow-hidden lg:col-span-2">
-          <div className="p-6 border-b border-brand-border">
-            <h3 className="text-lg font-bold text-brand-text font-serif">Riwayat Transaksi</h3>
-            <p className="text-sm text-brand-muted">10 transaksi terakhir Anda</p>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm whitespace-nowrap">
-              <thead className="bg-brand-bg/50 text-brand-muted">
-                <tr>
-                  <th className="px-6 py-4 font-medium">Tanggal</th>
-                  <th className="px-6 py-4 font-medium">Kategori</th>
-                  <th className="px-6 py-4 font-medium">Keterangan</th>
-                  <th className="px-6 py-4 font-medium">Tipe</th>
-                  <th className="px-6 py-4 font-medium text-right">Nominal</th>
-                  <th className="px-6 py-4 font-medium w-10"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-brand-border text-brand-text">
-                {transactions.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-brand-muted">
-                      <p className="mb-2">Anda belum mencatat transaksi apapun bulan ini.</p>
-                      <p className="text-xs">Klik tombol "Tambah Transaksi" di kanan atas untuk mulai.</p>
-                    </td>
-                  </tr>
-                ) : (
-                  transactions.map((trx) => (
-                    <tr key={trx.id} className="hover:bg-brand-bg/30">
-                      <td className="px-6 py-4">{new Date(trx.date).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })}</td>
-                      <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-surface border border-brand-border text-brand-text">
-                          {trx.category}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 max-w-xs truncate" title={trx.description || "-"}>{trx.description || "-"}</td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          trx.type === "INCOME" 
-                            ? "bg-brand-success/10 text-brand-success" 
-                            : "bg-brand-danger/10 text-brand-danger"
-                        }`}>
-                          {trx.type === "INCOME" ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                          {trx.type === "INCOME" ? "Pemasukan" : "Pengeluaran"}
-                        </span>
-                      </td>
-                      <td className={`px-6 py-4 text-right font-semibold ${trx.type === "INCOME" ? "text-brand-success" : "text-brand-danger"}`}>
-                        {trx.type === "INCOME" ? "+" : "-"} Rp {trx.amount.toLocaleString("id-ID")}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <DeleteTransactionButton id={trx.id} isInvoice={!!trx.invoiceId} />
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </Card>
+          <Card className="overflow-hidden lg:col-span-2 flex flex-col">
+            <TransactionList transactions={transactions} />
+          </Card>
 
         {/* Top Clients Section */}
         <Card className="overflow-hidden lg:col-span-1">

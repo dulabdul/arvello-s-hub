@@ -6,7 +6,7 @@ import { Topbar } from "@/components/modules/Topbar";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { PROPOSAL_STATUS_MAP, ProposalStatus } from "@/types/status";
-import { Plus, FileText, ExternalLink, Trash2 } from "lucide-react";
+import { Plus, FileText, ExternalLink, Trash2, Loader2 } from "lucide-react";
 import { formatCurrency } from "@/lib/services/invoice/calculator";
 
 interface ProposalData {
@@ -26,6 +26,7 @@ interface ProposalData {
 export default function ProposalsPage() {
   const [proposals, setProposals] = useState<ProposalData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   async function fetchProposals() {
     try {
@@ -47,11 +48,14 @@ export default function ProposalsPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Hapus proposal ini?")) return;
+    setDeletingId(id);
     try {
       await fetch(`/api/proposals/${id}`, { method: "DELETE" });
       setProposals(proposals.filter((p) => p.id !== id));
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -132,10 +136,11 @@ export default function ProposalsPage() {
                           </a>
                           <button
                             onClick={() => handleDelete(prop.id)}
-                            className="p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400"
+                            disabled={deletingId === prop.id}
+                            className={`p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 ${deletingId === prop.id ? 'opacity-50 cursor-wait' : ''}`}
                             title="Hapus"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            {deletingId === prop.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                           </button>
                         </div>
                       </td>

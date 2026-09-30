@@ -1,8 +1,15 @@
 import { prisma } from "@/lib/db/prisma";
 import { TransactionType } from "@prisma/client";
 
-export async function getTransactions(limit?: number) {
+export async function getTransactions(limit?: number, startDate?: Date, endDate?: Date) {
+  const where: any = {};
+  if (startDate || endDate) {
+    where.date = {};
+    if (startDate) where.date.gte = startDate;
+    if (endDate) where.date.lte = endDate;
+  }
   return await prisma.transaction.findMany({
+    where: Object.keys(where).length > 0 ? where : undefined,
     orderBy: { date: 'desc' },
     take: limit,
   });

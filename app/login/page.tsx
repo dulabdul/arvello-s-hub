@@ -42,11 +42,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-brand-bg flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-[100dvh] bg-brand-bg flex flex-col sm:items-center sm:justify-center px-4 pt-16 sm:p-4 relative overflow-hidden">
       {/* Background Ornaments (Aesthetic) */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-primary/10 rounded-full blur-[120px] pointer-events-none" />
       
-      <div className="w-full max-w-md bg-brand-surface/80 backdrop-blur-xl border border-brand-border rounded-2xl shadow-2xl p-8 relative z-10">
+      <div className="w-full max-w-md bg-white sm:bg-brand-surface/80 sm:backdrop-blur-xl sm:border border-brand-border rounded-3xl sm:rounded-2xl sm:shadow-2xl p-6 sm:p-8 relative z-10">
         <div className="flex flex-col items-center mb-8">
           <div className="w-12 h-12 bg-brand-primary text-brand-surface rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-brand-primary/20">
             <Command className="w-6 h-6" />

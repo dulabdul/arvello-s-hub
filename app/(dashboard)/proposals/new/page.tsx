@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Topbar } from "@/components/modules/Topbar";
 import { Button } from "@/components/ui/Button";
-import { Input, Select } from "@/components/ui/Input";
+import { Input, Select, CurrencyInput } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { ArrowLeft, ArrowRight, Plus, Trash2, CheckCircle2 } from "lucide-react";
 import { ClientData } from "@/lib/db/store";
@@ -254,17 +254,17 @@ export default function NewProposalPage() {
                     />
                   </div>
                   <div className="w-40">
-                    <Input
+                    <CurrencyInput
                       label="Harga (Rp)"
-                      type="number"
                       value={item.rate}
-                      onChange={(e) => handleItemChange(index, "rate", Number(e.target.value))}
+                      onChange={(val) => handleItemChange(index, "rate", val)}
                     />
                   </div>
                   <div className="w-40">
-                    <Input
+                    <CurrencyInput
                       label="Total (Rp)"
                       value={item.amount}
+                      onChange={() => {}}
                       disabled
                     />
                   </div>

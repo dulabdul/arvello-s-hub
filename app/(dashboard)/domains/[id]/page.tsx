@@ -27,6 +27,7 @@ export default function DomainDnsPage() {
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // New Record Form State
   const [type, setType] = useState("A");
@@ -93,6 +94,7 @@ export default function DomainDnsPage() {
 
   const handleDeleteRecord = async (recordId: string) => {
     if (!confirm("Hapus DNS Record ini?")) return;
+    setDeletingId(recordId);
     try {
       const res = await fetch(`/api/domains/${domainId}/dns?recordId=${recordId}`, {
         method: "DELETE"
@@ -106,6 +108,8 @@ export default function DomainDnsPage() {
     } catch (err) {
       console.error(err);
       alert("Terjadi kesalahan");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -215,10 +219,11 @@ export default function DomainDnsPage() {
                       <td className="px-6 py-4 text-right">
                         <button
                           onClick={() => handleDeleteRecord(record.id)}
-                          className="p-1.5 text-slate-400 hover:text-rose-500 transition-colors"
+                          disabled={deletingId === record.id}
+                          className={`p-1.5 text-slate-400 hover:text-rose-500 transition-colors ${deletingId === record.id ? 'opacity-50 cursor-wait' : ''}`}
                           title="Hapus Record"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          {deletingId === record.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                         </button>
                       </td>
                     </tr>

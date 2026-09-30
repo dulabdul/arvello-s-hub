@@ -4,14 +4,14 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import { Input, Select } from "@/components/ui/Input";
+import { Input, Select, CurrencyInput } from "@/components/ui/Input";
 import { Plus, Loader2, Settings2 } from "lucide-react";
 import { CategoryManagerModal } from "./CategoryManagerModal";
 
 export function TransactionModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [type, setType] = useState("EXPENSE");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState<number>(0);
   const [category, setCategory] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [description, setDescription] = useState("");
@@ -27,12 +27,18 @@ export function TransactionModal() {
         .then(data => {
           if (data.categories) {
             setCategories(data.categories);
-            if (!category) setCategory(data.categories[0]);
+            if (!category && data.categories.length > 0) setCategory(data.categories[0]);
           }
         })
         .catch(console.error);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!category && categories.length > 0) {
+      setCategory(categories[0]);
+    }
+  }, [categories, category]);
   
   const router = useRouter();
 
@@ -45,7 +51,7 @@ export function TransactionModal() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           type,
-          amount: Number(amount),
+          amount,
           category,
           date,
           description,
@@ -53,13 +59,17 @@ export function TransactionModal() {
       });
       if (res.ok) {
         setIsOpen(false);
-        setAmount("");
+        setAmount(0);
         setCategory("");
         setDescription("");
         router.refresh(); // Refresh server component data
+      } else {
+        const err = await res.json();
+        alert(err.error || "Gagal mencatat transaksi");
       }
     } catch (err) {
       console.error(err);
+      alert("Terjadi kesalahan sistem");
     } finally {
       setSaving(false);
     }
@@ -90,12 +100,11 @@ export function TransactionModal() {
               { value: "EXPENSE", label: "Pengeluaran (-)" },
             ]}
           />
-          <Input
+          <CurrencyInput
             label="Nominal (Rp)"
-            type="number"
             required
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={setAmount}
           />
           
           <div className="flex items-end gap-2">
