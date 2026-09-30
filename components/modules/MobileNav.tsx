@@ -1,14 +1,20 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { Modal } from "@/components/ui/Modal";
 import {
   LayoutDashboard,
   Users,
   Briefcase,
   Receipt,
-  Menu
+  Menu,
+  Wallet,
+  FolderGit2,
+  Globe,
+  Settings,
+  LogOut
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -16,11 +22,20 @@ const NAV_ITEMS = [
   { label: "Klien", href: "/clients", icon: Users },
   { label: "Proyek", href: "/projects", icon: Briefcase },
   { label: "Invoice", href: "/invoices", icon: Receipt },
-  { label: "Lainnya", href: "/settings", icon: Menu }, // Fallback to settings or a drawer later
+  { label: "Lainnya", href: "#more", icon: Menu }, // Opens Bottom Sheet
+];
+
+const EXTRA_ITEMS = [
+  { label: "Keuangan", href: "/finance", icon: Wallet },
+  { label: "Proposal", href: "/proposals", icon: FolderGit2 },
+  { label: "Domain Cloudflare", href: "/domains", icon: Globe },
+  { label: "Pengaturan", href: "/settings", icon: Settings },
 ];
 
 export function MobileNav() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50">
@@ -32,30 +47,58 @@ export function MobileNav() {
               ? pathname === "/"
               : pathname.startsWith(item.href);
 
+          if (item.href === "#more") {
+            return (
+              <button
+                key="more"
+                onClick={() => setIsMoreOpen(true)}
+                className="relative flex flex-col items-center justify-center min-w-[60px] h-12 transition-all active:scale-95"
+              >
+                <div className={`flex flex-col items-center justify-center transition-all duration-300 ${isMoreOpen ? '-translate-y-1' : ''}`}>
+                  <Icon
+                    className={`w-6 h-6 mb-1 transition-colors ${
+                      isMoreOpen ? "text-brand-primary" : "text-brand-muted"
+                    }`}
+                    strokeWidth={isMoreOpen ? 2.5 : 2}
+                  />
+                  <span 
+                    className={`text-[10px] font-semibold transition-all duration-300 ${
+                      isMoreOpen ? "text-brand-primary opacity-100" : "text-brand-muted opacity-80"
+                    }`}
+                  >
+                    {item.label}
+                  </span>
+                  {isMoreOpen && (
+                    <span className="absolute -bottom-1 w-1 h-1 rounded-full bg-brand-primary" />
+                  )}
+                </div>
+              </button>
+            );
+          }
+
           return (
             <Link
               key={item.href}
               href={item.href}
               className="relative flex flex-col items-center justify-center min-w-[60px] h-12 transition-all active:scale-95"
+              onClick={() => setIsMoreOpen(false)}
             >
-              <div className={`flex flex-col items-center justify-center transition-all duration-300 ${isActive ? '-translate-y-1' : ''}`}>
+              <div className={`flex flex-col items-center justify-center transition-all duration-300 ${isActive && !isMoreOpen ? '-translate-y-1' : ''}`}>
                 <Icon
                   className={`w-6 h-6 mb-1 transition-colors ${
-                    isActive ? "text-brand-primary" : "text-brand-muted"
+                    isActive && !isMoreOpen ? "text-brand-primary" : "text-brand-muted"
                   }`}
-                  strokeWidth={isActive ? 2.5 : 2}
+                  strokeWidth={isActive && !isMoreOpen ? 2.5 : 2}
                 />
-                {/* Text only visible if active, or always visible but different color */}
                 <span 
                   className={`text-[10px] font-semibold transition-all duration-300 ${
-                    isActive ? "text-brand-primary opacity-100" : "text-brand-muted opacity-80"
+                    isActive && !isMoreOpen ? "text-brand-primary opacity-100" : "text-brand-muted opacity-80"
                   }`}
                 >
                   {item.label}
                 </span>
                 
-                {/* Active indicator dot */}
-                {isActive && (
+                {isActive && !isMoreOpen && (
                   <span className="absolute -bottom-1 w-1 h-1 rounded-full bg-brand-primary" />
                 )}
               </div>
@@ -63,6 +106,54 @@ export function MobileNav() {
           );
         })}
       </nav>
+
+      <Modal
+        isOpen={isMoreOpen}
+        onClose={() => setIsMoreOpen(false)}
+        title="Menu Lainnya"
+      >
+        <div className="flex flex-col gap-2 pb-4">
+          {EXTRA_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setIsMoreOpen(false)}
+                className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-colors active:scale-95 min-h-[52px] ${
+                  isActive 
+                    ? "bg-brand-primary/10 text-brand-primary-dark font-semibold" 
+                    : "text-brand-text hover:bg-brand-bg/50"
+                }`}
+              >
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isActive ? "bg-brand-primary/20" : "bg-brand-bg text-brand-muted"}`}>
+                  <Icon className={`w-5 h-5 ${isActive ? "text-brand-primary" : ""}`} />
+                </div>
+                <span className="text-base">{item.label}</span>
+              </Link>
+            );
+          })}
+
+          <div className="h-px bg-brand-border my-2" />
+
+          <button
+            onClick={async () => {
+              if (confirm("Yakin ingin keluar?")) {
+                await fetch("/api/auth/logout", { method: "POST" });
+                setIsMoreOpen(false);
+                router.push("/login");
+              }
+            }}
+            className="flex items-center gap-4 px-4 py-3 rounded-xl text-brand-danger hover:bg-brand-danger/10 transition-colors active:scale-95 min-h-[52px]"
+          >
+            <div className="w-10 h-10 rounded-full bg-brand-danger/10 flex items-center justify-center shrink-0">
+              <LogOut className="w-5 h-5" />
+            </div>
+            <span className="text-base font-medium">Logout</span>
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }
