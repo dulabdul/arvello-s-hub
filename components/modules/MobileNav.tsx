@@ -14,13 +14,15 @@ import {
   FolderGit2,
   Globe,
   Settings,
-  LogOut
+  LogOut,
+  Plus
 } from "lucide-react";
+import { TransactionModal } from "./TransactionModal";
 
 const NAV_ITEMS = [
   { label: "Home", href: "/", icon: LayoutDashboard },
-  { label: "Klien", href: "/clients", icon: Users },
   { label: "Proyek", href: "/projects", icon: Briefcase },
+  { label: "", href: "#action", icon: Plus },
   { label: "Invoice", href: "/invoices", icon: Receipt },
   { label: "Lainnya", href: "#more", icon: Menu }, // Opens Bottom Sheet
 ];
@@ -73,6 +75,20 @@ export function MobileNav() {
                   )}
                 </div>
               </button>
+            );
+          }
+
+          if (item.href === "#action") {
+            return (
+              <div key="action" className="relative flex flex-col items-center justify-center min-w-[60px] h-12 z-10">
+                <TransactionModal 
+                  customTrigger={
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 flex items-center justify-center w-14 h-14 bg-brand-primary text-white rounded-full shadow-lg shadow-brand-primary/40 transition-transform active:scale-95 border-4 border-white dark:border-slate-900">
+                      <Icon className="w-7 h-7" strokeWidth={2.5} />
+                    </div>
+                  }
+                />
+              </div>
             );
           }
 

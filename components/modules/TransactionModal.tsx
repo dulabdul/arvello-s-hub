@@ -8,7 +8,7 @@ import { Input, Select, CurrencyInput } from "@/components/ui/Input";
 import { Plus, Loader2, Settings2 } from "lucide-react";
 import { CategoryManagerModal } from "./CategoryManagerModal";
 
-export function TransactionModal() {
+export function TransactionModal({ customTrigger }: { customTrigger?: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [type, setType] = useState("EXPENSE");
   const [amount, setAmount] = useState<number>(0);
@@ -77,12 +77,18 @@ export function TransactionModal() {
 
   return (
     <>
-      <button 
-        onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-full font-medium text-sm shadow-sm hover:opacity-90 transition-opacity"
-      >
-        <Plus className="w-4 h-4" /> Catat Transaksi
-      </button>
+      {customTrigger ? (
+        <div onClick={() => setIsOpen(true)} className="cursor-pointer inline-flex">
+          {customTrigger}
+        </div>
+      ) : (
+        <button 
+          onClick={() => setIsOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-full font-medium text-sm shadow-sm hover:opacity-90 transition-opacity"
+        >
+          <Plus className="w-4 h-4" /> Catat Transaksi
+        </button>
+      )}
 
       <Modal
         isOpen={isOpen}

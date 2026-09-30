@@ -17,7 +17,9 @@ import {
   ChevronRight,
   Sparkles,
   LogOut,
+  Plus
 } from "lucide-react";
+import { TransactionModal } from "./TransactionModal";
 
 interface NavItem {
   label: string;
@@ -86,8 +88,20 @@ export function Sidebar() {
         </button>
       </div>
 
+      {/* Quick Action */}
+      <div className="px-3 pt-4 pb-2">
+        <TransactionModal 
+          customTrigger={
+            <div className={`flex items-center ${collapsed ? "justify-center" : "justify-center gap-2"} w-full py-2.5 px-3 bg-brand-primary hover:bg-brand-primary-dark text-white rounded-xl transition-all shadow-sm active:scale-95 border border-brand-primary/20`}>
+              <Plus className="w-4 h-4 shrink-0" strokeWidth={2.5} />
+              {!collapsed && <span className="text-sm font-semibold tracking-wide">Catat Transaksi</span>}
+            </div>
+          }
+        />
+      </div>
+
       {/* Navigation Links */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+      <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-1">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive =
