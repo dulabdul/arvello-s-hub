@@ -15,6 +15,7 @@ type ChartData = {
   name: string;
   income: number;
   expense: number;
+  netProfit: number;
 };
 
 interface FinancialChartProps {
@@ -25,6 +26,7 @@ export function FinancialChart({ data }: FinancialChartProps) {
   // Brand colors extracted from our DESIGN.md
   const colorSuccess = "#5C715E"; // Sage Green
   const colorDanger = "#C53030"; // Muted Red
+  const colorInfo = "#2563EB"; // Blue
 
   return (
     <div className="w-full h-80 -ml-4 md:-ml-0">
@@ -75,6 +77,15 @@ export function FinancialChart({ data }: FinancialChartProps) {
             strokeWidth={3} 
             dot={false}
             activeDot={{ r: 6, fill: colorDanger, stroke: "#fff", strokeWidth: 2 }} 
+          />
+          <Line 
+            type="monotone" 
+            dataKey="netProfit" 
+            name="Profit Bersih" 
+            stroke={colorInfo} 
+            strokeWidth={3} 
+            dot={false}
+            activeDot={{ r: 6, fill: colorInfo, stroke: "#fff", strokeWidth: 2 }} 
           />
         </LineChart>
       </ResponsiveContainer>

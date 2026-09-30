@@ -26,7 +26,7 @@ interface DashboardData {
   activeProjectsCount: number;
   unpaidInvoicesCount: number;
   unpaidInvoicesAmount: number;
-  paidInvoicesAmount: number;
+  netProfitAmount: number;
   totalPipelineValue: number;
   recentProjects: ProjectData[];
   recentInvoices: InvoiceData[];
@@ -148,19 +148,19 @@ export default function DashboardPage() {
             </div>
           </Card>
 
-          {/* Card 3: Pemasukan Terbayar */}
+          {/* Card 3: Profit Bersih */}
           <Card className="flex flex-col justify-between">
             <div className="flex items-center justify-between text-brand-muted mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider">Pemasukan Diterima</span>
+              <span className="text-xs font-semibold uppercase tracking-wider">Profit Bersih</span>
               <div className="w-8 h-8 rounded-lg bg-brand-success/10 text-brand-success flex items-center justify-center">
                 <TrendingUp className="w-4 h-4" />
               </div>
             </div>
             <div>
               <p className="text-2xl font-bold text-brand-success">
-                {loading ? "..." : formatCurrency(data?.paidInvoicesAmount || 0)}
+                {loading ? "..." : formatCurrency(data?.netProfitAmount || 0)}
               </p>
-              <p className="text-xs text-brand-muted mt-1">Dari invoice berstatus Lunas</p>
+              <p className="text-xs text-brand-muted mt-1">Pemasukan dikurangi pengeluaran</p>
             </div>
           </Card>
 

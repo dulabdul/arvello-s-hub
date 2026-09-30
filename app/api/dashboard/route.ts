@@ -6,22 +6,26 @@ export async function GET() {
     clientsCount,
     activeProjects,
     unpaidInvoices,
-    paidInvoices,
+    incomeTransactions,
+    expenseTransactions,
     projects,
     recentProjects,
     recentInvoices
   ] = await Promise.all([
     prisma.client.count(),
     prisma.project.findMany({ where: { status: { in: ["IN_PROGRESS", "REVIEW", "NEGOTIATION"] } } }),
-    prisma.invoice.findMany({ where: { status: { in: ["UNPAID", "SENT"] } } }),
-    prisma.invoice.findMany({ where: { status: "PAID" } }),
+    prisma.invoice.findMany({ where: { status: { in: ["UNPAID", "SENT", "OVERDUE"] } } }),
+    prisma.transaction.aggregate({ where: { type: "INCOME" }, _sum: { amount: true } }),
+    prisma.transaction.aggregate({ where: { type: "EXPENSE" }, _sum: { amount: true } }),
     prisma.project.findMany(),
     prisma.project.findMany({ take: 4, orderBy: { createdAt: 'desc' }, include: { client: true } }),
     prisma.invoice.findMany({ take: 4, orderBy: { createdAt: 'desc' }, include: { client: true, project: true } }),
   ]);
 
   const unpaidTotal = unpaidInvoices.reduce((sum, i) => sum + i.total, 0);
-  const paidTotal = paidInvoices.reduce((sum, i) => sum + i.total, 0);
+  const incomeTotal = incomeTransactions._sum.amount || 0;
+  const expenseTotal = expenseTransactions._sum.amount || 0;
+  const netProfit = incomeTotal - expenseTotal;
   const totalPipelineValue = projects.reduce((sum, p) => sum + p.value, 0);
 
   const summary = {
@@ -29,7 +33,7 @@ export async function GET() {
     activeProjectsCount: activeProjects.length,
     unpaidInvoicesCount: unpaidInvoices.length,
     unpaidInvoicesAmount: unpaidTotal,
-    paidInvoicesAmount: paidTotal,
+    netProfitAmount: netProfit,
     totalPipelineValue,
     recentProjects: recentProjects.map(p => ({
       ...p,

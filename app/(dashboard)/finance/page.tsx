@@ -33,7 +33,10 @@ export default async function FinancePage(props: { searchParams: Promise<{ perio
   const summary = await getFinancialSummary(startDate, endDate);
   const transactions = await getTransactions(undefined, startDate, endDate);
 
-  const chartData = summary.monthlyData;
+  const chartData = summary.monthlyData.map(d => ({
+    ...d,
+    netProfit: d.income - d.expense
+  }));
 
   return (
     <div className="flex flex-col min-h-screen pb-10">
@@ -123,7 +126,7 @@ export default async function FinancePage(props: { searchParams: Promise<{ perio
           <Card className="p-6 lg:col-span-2">
             <div className="mb-6">
               <h3 className="text-lg font-bold text-brand-text font-serif">Tren Arus Kas Bulanan</h3>
-              <p className="text-sm text-brand-muted">Perbandingan pemasukan dan pengeluaran</p>
+              <p className="text-sm text-brand-muted">Perbandingan pemasukan, pengeluaran, dan profit bersih</p>
             </div>
             <FinancialChart data={chartData} />
           </Card>
