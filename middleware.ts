@@ -12,7 +12,8 @@ export async function middleware(request: NextRequest) {
   if (
     pathname.startsWith('/_next') || 
     pathname.startsWith('/favicon.ico') ||
-    pathname.startsWith('/api/proposals/public') // Example of an API that should be public (if any)
+    pathname.startsWith('/api/proposals/public') ||
+    /\.(?:png|jpg|jpeg|gif|webp|svg|ico)$/i.test(pathname)
   ) {
     return NextResponse.next();
   }
@@ -43,5 +44,14 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)'],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public files with extensions (e.g. .svg, .png, .jpg, .jpeg, .gif, .webp, .ico)
+     */
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 };

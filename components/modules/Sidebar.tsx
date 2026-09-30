@@ -51,12 +51,28 @@ export function Sidebar() {
         {!collapsed ? (
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center shrink-0">
-              <Image src="/logo.png" alt="Arvello Logo" width={130} height={36} className="object-contain" />
+              <Image
+                src="/logo.png"
+                alt="Arvello Logo"
+                width={130}
+                height={36}
+                priority
+                style={{ width: "auto", height: "auto" }}
+                className="max-h-9 object-contain"
+              />
             </div>
           </div>
         ) : (
           <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 mx-auto">
-            <Image src="/logo.png" alt="Arvello Logo" width={40} height={40} className="object-cover object-left" />
+            <Image
+              src="/logo.png"
+              alt="Arvello Logo"
+              width={40}
+              height={40}
+              priority
+              style={{ width: "auto", height: "auto" }}
+              className="object-cover object-left"
+            />
           </div>
         )}
 
