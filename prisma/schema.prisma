@@ -171,10 +171,24 @@ model Domain {
   zoneId      String?      // Cloudflare Zone ID
   status      DomainStatus @default(PENDING)
   registrar   String?      // e.g. Namecheap, GoDaddy, RumahWeb, Cloudflare, Hostinger
-  expiresAt   DateTime?    // Expired Date
+  expiresAt    DateTime?           // Expired Date
   
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  reminderLogs DomainReminderLog[]
+  
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+}
+
+model DomainReminderLog {
+  id        String   @id @default(uuid())
+  domainId  String
+  domain    Domain   @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  threshold Int      // 30, 14, 7, 3
+  expiresAt DateTime // Diikat ke tanggal expire spesifik
+  sentAt    DateTime @default(now())
+
+  @@unique([domainId, threshold, expiresAt])
+  @@index([domainId])
 }
 
 model Setting {

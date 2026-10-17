@@ -1,0 +1,33 @@
+name: Daily Domain Expiry Digest Cron
+
+on:
+  schedule:
+    # Runs every day at 01:00 UTC (08:00 WIB / GMT+7)
+    - cron: '0 1 * * *'
+  # Allows triggering manually anytime via GitHub Actions web UI button "Run workflow"
+  workflow_dispatch:
+
+jobs:
+  check-and-send-reminders:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Domain Expiry Reminders
+        run: |
+          echo "🚀 Triggering Domain Expiry Reminders on ${{ secrets.APP_URL }}..."
+          
+          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X POST "${{ secrets.APP_URL }}/api/cron/domain-reminders" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json")
+          
+          BODY=$(echo "$RESPONSE" | sed -e '$d')
+          HTTP_STATUS=$(echo "$RESPONSE" | tail -n1 | cut -d':' -f2)
+          
+          echo "Status: $HTTP_STATUS"
+          echo "Response Body: $BODY"
+          
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "❌ Cron job failed with status $HTTP_STATUS"
+            exit 1
+          else
+            echo "✅ Domain reminders cron completed successfully!"
+          fi

@@ -21,7 +21,10 @@ import {
   Trash2,
   Tag,
   ChevronDown,
-  Sparkles
+  Sparkles,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown
 } from "lucide-react";
 import { DnsManagerModal } from "@/components/modules/DnsManagerModal";
 import { RegistrarManagerModal } from "@/components/modules/RegistrarManagerModal";
@@ -47,8 +50,17 @@ export default function DomainsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [registrarFilter, setRegistrarFilter] = useState("ALL");
+  const [expireSort, setExpireSort] = useState<"none" | "asc" | "desc">("none");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  const toggleExpireSort = () => {
+    setExpireSort((prev) => {
+      if (prev === "none") return "asc";
+      if (prev === "asc") return "desc";
+      return "none";
+    });
+  };
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -313,9 +325,9 @@ export default function DomainsPage() {
     return match?.color || "#64748B";
   };
 
-  // Memoized Filtering & Pagination
+  // Memoized Filtering, Full-Dataset Sorting, & Pagination
   const filteredDomains = useMemo(() => {
-    return domains.filter((d) => {
+    const result = domains.filter((d) => {
       const matchesSearch = d.name.toLowerCase().includes(search.toLowerCase());
       const matchesStatus = statusFilter === "ALL" || d.status === statusFilter;
       const matchesRegistrar = 
@@ -325,17 +337,40 @@ export default function DomainsPage() {
           : d.registrar?.toLowerCase() === registrarFilter.toLowerCase());
       return matchesSearch && matchesStatus && matchesRegistrar;
     });
-  }, [domains, search, statusFilter, registrarFilter]);
+
+    if (expireSort !== "none") {
+      result.sort((a, b) => {
+        const hasExpA = Boolean(a.expiresAt);
+        const hasExpB = Boolean(b.expiresAt);
+
+        // Place domains without expire date at the end for both asc and desc
+        if (!hasExpA && !hasExpB) return 0;
+        if (!hasExpA) return 1;
+        if (!hasExpB) return -1;
+
+        const timeA = new Date(a.expiresAt!).getTime();
+        const timeB = new Date(b.expiresAt!).getTime();
+
+        if (isNaN(timeA) && isNaN(timeB)) return 0;
+        if (isNaN(timeA)) return 1;
+        if (isNaN(timeB)) return -1;
+
+        return expireSort === "asc" ? timeA - timeB : timeB - timeA;
+      });
+    }
+
+    return result;
+  }, [domains, search, statusFilter, registrarFilter, expireSort]);
 
   const totalPages = Math.ceil(filteredDomains.length / itemsPerPage) || 1;
   
   // Safe page index clamped within [1, totalPages]
   const safePage = Math.min(Math.max(1, currentPage), totalPages);
 
-  // Auto-reset page to 1 whenever filters change
+  // Auto-reset page to 1 whenever filters or sort change
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, statusFilter, registrarFilter]);
+  }, [search, statusFilter, registrarFilter, expireSort]);
 
   // Ensure page is within bounds when totalPages changes
   useEffect(() => {
@@ -413,11 +448,11 @@ export default function DomainsPage() {
               />
             </div>
             
-            <div className="grid grid-cols-2 sm:flex gap-2">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap lg:flex-nowrap gap-2">
               <select 
                 value={registrarFilter} 
                 onChange={(e) => setRegistrarFilter(e.target.value)}
-                className="w-full sm:w-40 px-3 py-2 bg-brand-bg border border-brand-border rounded-lg text-sm focus:outline-none focus:border-brand-primary cursor-pointer text-brand-text truncate"
+                className="w-full sm:w-36 px-3 py-2 bg-brand-bg border border-brand-border rounded-lg text-sm focus:outline-none focus:border-brand-primary cursor-pointer text-brand-text truncate"
               >
                 <option value="ALL">Semua Register</option>
                 {registrars.map((r) => (
@@ -429,13 +464,26 @@ export default function DomainsPage() {
               <select 
                 value={statusFilter} 
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full sm:w-36 px-3 py-2 bg-brand-bg border border-brand-border rounded-lg text-sm focus:outline-none focus:border-brand-primary cursor-pointer text-brand-text"
+                className="w-full sm:w-32 px-3 py-2 bg-brand-bg border border-brand-border rounded-lg text-sm focus:outline-none focus:border-brand-primary cursor-pointer text-brand-text"
               >
                 <option value="ALL">Semua Status</option>
                 <option value="ACTIVE">Active</option>
                 <option value="PENDING">Pending</option>
                 <option value="MOVED">Moved</option>
                 <option value="FAILED">Failed</option>
+              </select>
+
+              <select 
+                value={expireSort} 
+                onChange={(e) => setExpireSort(e.target.value as "none" | "asc" | "desc")}
+                className={`col-span-2 sm:col-span-1 w-full sm:w-44 px-3 py-2 bg-brand-bg border rounded-lg text-sm focus:outline-none focus:border-brand-primary cursor-pointer transition-colors text-brand-text truncate ${
+                  expireSort !== "none" ? "border-brand-primary text-brand-primary font-medium" : "border-brand-border"
+                }`}
+                title="Urutkan berdasarkan Expired Date"
+              >
+                <option value="none">Urutkan: Default</option>
+                <option value="asc">Expired: Terdekat (Asc)</option>
+                <option value="desc">Expired: Terjauh (Desc)</option>
               </select>
             </div>
           </div>
@@ -490,7 +538,38 @@ export default function DomainsPage() {
                   <th className="px-6 py-4 font-medium text-brand-muted">Register</th>
                   <th className="px-6 py-4 font-medium text-brand-muted">Status</th>
                   <th className="px-6 py-4 font-medium text-brand-muted">Register Date</th>
-                  <th className="px-6 py-4 font-medium text-brand-muted">Expired Date</th>
+                  <th 
+                    className="px-6 py-4 font-medium text-brand-muted cursor-pointer hover:text-brand-text select-none group transition-colors"
+                    onClick={toggleExpireSort}
+                    title={
+                      expireSort === "none"
+                        ? "Klik untuk urutkan Expired Date: Terdekat (Asc)"
+                        : expireSort === "asc"
+                        ? "Klik untuk urutkan Expired Date: Terjauh (Desc)"
+                        : "Klik untuk kembali ke urutan bawaan"
+                    }
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <span className={expireSort !== "none" ? "text-brand-primary font-semibold" : ""}>
+                        Expired Date
+                      </span>
+                      <span className="inline-flex items-center">
+                        {expireSort === "asc" ? (
+                          <span className="inline-flex items-center gap-0.5 text-xs text-brand-primary font-semibold">
+                            <ArrowUp className="w-3.5 h-3.5" />
+                            <span className="text-[10px] hidden md:inline">Asc</span>
+                          </span>
+                        ) : expireSort === "desc" ? (
+                          <span className="inline-flex items-center gap-0.5 text-xs text-brand-primary font-semibold">
+                            <ArrowDown className="w-3.5 h-3.5" />
+                            <span className="text-[10px] hidden md:inline">Desc</span>
+                          </span>
+                        ) : (
+                          <ArrowUpDown className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
+                        )}
+                      </span>
+                    </div>
+                  </th>
                   <th className="px-6 py-4 font-medium text-brand-muted text-right">Aksi</th>
                 </tr>
               </thead>

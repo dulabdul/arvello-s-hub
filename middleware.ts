@@ -18,6 +18,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/icons/') ||
     pathname.startsWith('/splash/') ||
     pathname.startsWith('/api/proposals/public') ||
+    pathname.startsWith('/api/cron/') ||
     /\.(?:png|jpg|jpeg|gif|webp|svg|ico|webmanifest|json)$/i.test(pathname)
   ) {
     return NextResponse.next();
