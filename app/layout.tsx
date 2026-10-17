@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "sonner";
+import { PwaProvider } from "@/components/providers/PwaProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -19,10 +20,22 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "Arvello's Hub — Personal Command Center",
   description: "Platform web personal untuk mengelola klien, proyek, invoice, keuangan, dan domain.",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/icons/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "Arvello's Hub",
+    startupImage: "/icons/icon-512x512.png",
   },
   formatDetection: {
     telephone: false,
@@ -35,7 +48,10 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
-  themeColor: "#0047AB",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#0047AB" },
+    { media: "(prefers-color-scheme: dark)", color: "#121822" },
+  ],
 };
 
 export default function RootLayout({
@@ -57,7 +73,9 @@ export default function RootLayout({
           speed={200}
           shadow="0 0 10px #0047AB,0 0 5px #0047AB"
         />
-        {children}
+        <PwaProvider>
+          {children}
+        </PwaProvider>
         <Toaster position="top-center" richColors closeButton />
       </body>
     </html>

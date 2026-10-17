@@ -12,8 +12,12 @@ export async function middleware(request: NextRequest) {
   if (
     pathname.startsWith('/_next') || 
     pathname.startsWith('/favicon.ico') ||
+    pathname.startsWith('/sw.js') ||
+    pathname.startsWith('/manifest.webmanifest') ||
+    pathname.startsWith('/manifest.json') ||
+    pathname.startsWith('/icons/') ||
     pathname.startsWith('/api/proposals/public') ||
-    /\.(?:png|jpg|jpeg|gif|webp|svg|ico)$/i.test(pathname)
+    /\.(?:png|jpg|jpeg|gif|webp|svg|ico|webmanifest|json)$/i.test(pathname)
   ) {
     return NextResponse.next();
   }
@@ -49,9 +53,9 @@ export const config = {
      * Match all request paths except for the ones starting with:
      * - _next/static (static files)
      * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public files with extensions (e.g. .svg, .png, .jpg, .jpeg, .gif, .webp, .ico)
+     * - favicon.ico, sw.js, manifest.webmanifest, manifest.json, icons/
+     * - public files with extensions (e.g. .svg, .png, .jpg, .jpeg, .gif, .webp, .ico, .webmanifest)
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|sw.js|manifest.webmanifest|manifest.json|icons/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest)$).*)',
   ],
 };
