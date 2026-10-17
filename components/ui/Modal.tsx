@@ -50,40 +50,44 @@ export function Modal({
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[60] flex flex-col sm:items-center sm:justify-center justify-end sm:p-4">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
         onClick={onClose}
       />
 
-      {/* Modal / Bottom Sheet Dialog */}
+      {/* Centered Modal Dialog */}
       <div
-        className={`relative w-full ${maxWidths[maxWidth]} bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-t-3xl sm:rounded-2xl shadow-2xl p-6 z-10 
-          animate-in slide-in-from-bottom-[100%] sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-300 
-          max-h-[90vh] sm:max-h-[85vh] flex flex-col safe-area-bottom pb-[calc(1.5rem+env(safe-area-inset-bottom))]`}
+        className={`relative w-full ${maxWidths[maxWidth]} bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-5 sm:p-6 z-10 
+          animate-in fade-in zoom-in-95 duration-200 
+          max-h-[90vh] flex flex-col`}
       >
-        {/* Mobile Pull Indicator */}
-        <div className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full sm:hidden" />
-
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800 mt-2 sm:mt-0">
-          <div>
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{title}</h3>
+        <div className="flex items-start justify-between gap-3 pb-3 sm:pb-4 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex-1 min-w-0 pr-1">
+            <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-slate-100 truncate">
+              {title}
+            </h3>
             {description && (
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{description}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
+                {description}
+              </p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="w-9 h-9 min-w-[36px] min-h-[36px] -mr-1 -mt-1 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:scale-95"
+            aria-label="Tutup Modal"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Body content */}
-        <div className="overflow-y-auto pt-4 flex-1">{children}</div>
+        {/* Body content with smooth touch scrolling */}
+        <div className="overflow-y-auto overscroll-contain pt-3 sm:pt-4 flex-1 -mr-1 pr-1">
+          {children}
+        </div>
       </div>
     </div>,
     document.body

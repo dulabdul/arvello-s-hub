@@ -210,21 +210,17 @@ export function RegistrarSelectBadge({
       {/* Render via Portal */}
       {isOpen && mounted && typeof document !== "undefined" && (
         isMobile ? (
-          /* Mobile Native Action Sheet */
+          /* Mobile Centered Dialog */
           createPortal(
             <div
-              className="fixed inset-0 z-[9999] flex flex-col justify-end bg-black/60 backdrop-blur-xs animate-in fade-in duration-200"
+              className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200"
               onClick={() => setIsOpen(false)}
             >
               <div
                 ref={menuRef}
                 onClick={(e) => e.stopPropagation()}
-                className="bg-brand-surface border-t border-brand-border rounded-t-2xl shadow-2xl max-h-[80vh] flex flex-col animate-in slide-in-from-bottom duration-250 pb-safe"
+                className="w-full max-w-sm bg-brand-surface border border-brand-border rounded-2xl shadow-2xl max-h-[80vh] flex flex-col animate-in zoom-in-95 fade-in-0 duration-200 overflow-hidden"
               >
-                {/* Grab handle */}
-                <div className="flex items-center justify-center pt-3 pb-1">
-                  <div className="w-12 h-1.5 rounded-full bg-brand-border" />
-                </div>
 
                 {/* Header */}
                 <div className="px-5 py-3 flex items-center justify-between border-b border-brand-border">

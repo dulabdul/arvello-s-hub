@@ -46,10 +46,10 @@ export function ExportCSVButton({ summary, transactions }: ExportCSVButtonProps)
     <button 
       onClick={handleExport}
       disabled={exporting}
-      className={`flex items-center gap-2 px-4 py-2 bg-brand-bg/50 text-brand-text rounded-full font-medium text-sm hover:bg-brand-surface transition-colors border border-brand-border ${exporting ? 'opacity-50 cursor-wait' : ''}`}
+      className={`flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-brand-surface text-brand-text rounded-full font-medium text-xs sm:text-sm hover:bg-brand-bg/80 active:scale-95 transition-all border border-brand-border shadow-xs ${exporting ? 'opacity-50 cursor-wait' : ''}`}
     >
-      {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} 
-      {exporting ? "Mengekspor..." : "Export CSV"}
+      {exporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />} 
+      <span>{exporting ? "Mengekspor..." : "Export CSV"}</span>
     </button>
   );
 }

@@ -364,103 +364,118 @@ export default function DomainsPage() {
         title="Manajemen Domain"
         subtitle="Kelola domain klien, DNS Record via Cloudflare, dan status Registrar."
         actions={
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={handleBatchWhois}
-              disabled={isBatchWhoisSyncing}
-              title="Periksa WHOIS untuk semua domain secara otomatis"
-              className="flex items-center gap-1.5"
-            >
-              <Sparkles className={`w-4 h-4 text-amber-500 ${isBatchWhoisSyncing ? "animate-spin" : ""}`} />
-              <span className="hidden sm:inline">
-                {isBatchWhoisSyncing ? "Scanning WHOIS..." : "Cek WHOIS Otomatis"}
-              </span>
-              <span className="sm:hidden">WHOIS</span>
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setIsRegistrarModalOpen(true)}
-              title="Kelola Daftar Register & Warna"
-              className="flex items-center gap-1.5"
-            >
-              <Tag className="w-4 h-4 text-brand-primary" />
-              <span className="hidden sm:inline">Kelola Register</span>
-              <span className="sm:hidden">Register</span>
-            </Button>
-            <Button variant="outline" onClick={handleSync} disabled={isSyncing}>
-              <RefreshCcw className={`w-4 h-4 sm:mr-2 ${isSyncing ? "animate-spin" : ""}`} />
-              <span className="hidden sm:inline">Sinkronisasi</span>
-            </Button>
-            <Button variant="primary" className="flex items-center gap-2" onClick={() => setIsModalOpen(true)}>
-              <Plus className="w-4 h-4" /> 
-              <span className="hidden sm:inline">Tambah Domain</span>
-              <span className="sm:hidden">Tambah</span>
-            </Button>
-          </div>
+          <Button 
+            variant="primary" 
+            className="flex items-center gap-1.5 h-9 sm:h-10 text-xs sm:text-sm px-3 sm:px-4" 
+            onClick={() => setIsModalOpen(true)}
+          >
+            <Plus className="w-4 h-4" /> 
+            <span className="hidden sm:inline">Tambah Domain</span>
+            <span className="sm:hidden">Tambah</span>
+          </Button>
         }
       />
 
-      <div className="p-6 max-w-7xl mx-auto w-full space-y-6">
+      <div className="p-4 sm:p-6 max-w-7xl mx-auto w-full space-y-4 sm:space-y-6">
         
         {/* KPI Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="p-4 flex flex-col justify-center">
-            <p className="text-sm text-brand-muted">Total Domain</p>
-            <p className="text-2xl font-bold font-serif">{stats.total}</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+          <Card className="p-3.5 sm:p-4 flex flex-col justify-center">
+            <p className="text-xs sm:text-sm text-brand-muted">Total Domain</p>
+            <p className="text-xl sm:text-2xl font-bold font-serif">{stats.total}</p>
           </Card>
-          <Card className="p-4 flex flex-col justify-center border-emerald-500/20 bg-emerald-50/50 dark:bg-emerald-900/10">
-            <p className="text-sm text-emerald-600 dark:text-emerald-400">Aktif (Active)</p>
-            <p className="text-2xl font-bold font-serif text-emerald-700 dark:text-emerald-300">{stats.active}</p>
+          <Card className="p-3.5 sm:p-4 flex flex-col justify-center border-emerald-500/20 bg-emerald-50/50 dark:bg-emerald-900/10">
+            <p className="text-xs sm:text-sm text-emerald-600 dark:text-emerald-400">Aktif (Active)</p>
+            <p className="text-xl sm:text-2xl font-bold font-serif text-emerald-700 dark:text-emerald-300">{stats.active}</p>
           </Card>
-          <Card className="p-4 flex flex-col justify-center border-amber-500/20 bg-amber-50/50 dark:bg-amber-900/10">
-            <p className="text-sm text-amber-600 dark:text-amber-400">Menunggu (Pending)</p>
-            <p className="text-2xl font-bold font-serif text-amber-700 dark:text-amber-300">{stats.pending}</p>
+          <Card className="p-3.5 sm:p-4 flex flex-col justify-center border-amber-500/20 bg-amber-50/50 dark:bg-amber-900/10">
+            <p className="text-xs sm:text-sm text-amber-600 dark:text-amber-400">Menunggu (Pending)</p>
+            <p className="text-xl sm:text-2xl font-bold font-serif text-amber-700 dark:text-amber-300">{stats.pending}</p>
           </Card>
-          <Card className="p-4 flex flex-col justify-center border-slate-500/20 bg-slate-50/50 dark:bg-slate-800/30">
-            <p className="text-sm text-slate-600 dark:text-slate-400">Dipindahkan (Moved)</p>
-            <p className="text-2xl font-bold font-serif text-slate-700 dark:text-slate-300">{stats.moved}</p>
+          <Card className="p-3.5 sm:p-4 flex flex-col justify-center border-slate-500/20 bg-slate-50/50 dark:bg-slate-800/30">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Dipindahkan (Moved)</p>
+            <p className="text-xl sm:text-2xl font-bold font-serif text-slate-700 dark:text-slate-300">{stats.moved}</p>
           </Card>
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-brand-surface p-4 rounded-xl border border-brand-border">
-          <div className="relative w-full sm:w-80">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-brand-muted" />
-            <input 
-              type="text" 
-              placeholder="Cari nama domain..." 
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-brand-bg border border-brand-border rounded-lg text-sm focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all"
-            />
-          </div>
-          <div className="w-full sm:w-auto flex flex-wrap sm:flex-nowrap gap-2">
-            {/* Filter by Register */}
-            <select 
-              value={registrarFilter} 
-              onChange={(e) => setRegistrarFilter(e.target.value)}
-              className="w-full sm:w-44 px-3 py-2 bg-brand-bg border border-brand-border rounded-lg text-sm focus:outline-none focus:border-brand-primary cursor-pointer text-brand-text"
-            >
-              <option value="ALL">Semua Register</option>
-              {registrars.map((r) => (
-                <option key={r.id} value={r.name}>{r.name}</option>
-              ))}
-              <option value="UNASSIGNED">Belum Diatur</option>
-            </select>
+        {/* Filters & Actions Bar */}
+        <div className="flex flex-col lg:flex-row gap-3 justify-between items-stretch lg:items-center bg-brand-surface p-3.5 sm:p-4 rounded-xl border border-brand-border shadow-xs">
+          {/* Search & Filters */}
+          <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center flex-1">
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-brand-muted" />
+              <input 
+                type="text" 
+                placeholder="Cari nama domain..." 
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 bg-brand-bg border border-brand-border rounded-lg text-sm focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all"
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 sm:flex gap-2">
+              <select 
+                value={registrarFilter} 
+                onChange={(e) => setRegistrarFilter(e.target.value)}
+                className="w-full sm:w-40 px-3 py-2 bg-brand-bg border border-brand-border rounded-lg text-sm focus:outline-none focus:border-brand-primary cursor-pointer text-brand-text truncate"
+              >
+                <option value="ALL">Semua Register</option>
+                {registrars.map((r) => (
+                  <option key={r.id} value={r.name}>{r.name}</option>
+                ))}
+                <option value="UNASSIGNED">Belum Diatur</option>
+              </select>
 
-            {/* Filter by Status */}
-            <select 
-              value={statusFilter} 
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full sm:w-40 px-3 py-2 bg-brand-bg border border-brand-border rounded-lg text-sm focus:outline-none focus:border-brand-primary cursor-pointer text-brand-text"
+              <select 
+                value={statusFilter} 
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full sm:w-36 px-3 py-2 bg-brand-bg border border-brand-border rounded-lg text-sm focus:outline-none focus:border-brand-primary cursor-pointer text-brand-text"
+              >
+                <option value="ALL">Semua Status</option>
+                <option value="ACTIVE">Active</option>
+                <option value="PENDING">Pending</option>
+                <option value="MOVED">Moved</option>
+                <option value="FAILED">Failed</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Utility Tools: WHOIS, Register & Cloudflare Sync */}
+          <div className="flex items-center gap-2 border-t lg:border-t-0 pt-3 lg:pt-0 border-brand-border/60 justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleBatchWhois}
+              disabled={isBatchWhoisSyncing}
+              title="Periksa WHOIS untuk semua domain secara otomatis"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 text-xs h-9 px-3"
             >
-              <option value="ALL">Semua Status</option>
-              <option value="ACTIVE">Active</option>
-              <option value="PENDING">Pending</option>
-              <option value="MOVED">Moved</option>
-              <option value="FAILED">Failed</option>
-            </select>
+              <Sparkles className={`w-3.5 h-3.5 text-amber-500 ${isBatchWhoisSyncing ? "animate-spin" : ""}`} />
+              <span>{isBatchWhoisSyncing ? "Scanning..." : "Cek WHOIS"}</span>
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsRegistrarModalOpen(true)}
+              title="Kelola Daftar Register & Warna"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 text-xs h-9 px-3"
+            >
+              <Tag className="w-3.5 h-3.5 text-brand-primary" />
+              <span>Kelola Register</span>
+            </Button>
+
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleSync} 
+              disabled={isSyncing}
+              title="Sinkronisasi dari Cloudflare"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 text-xs h-9 px-3"
+            >
+              <RefreshCcw className={`w-3.5 h-3.5 ${isSyncing ? "animate-spin" : ""}`} />
+              <span>{isSyncing ? "Sync..." : "Sinkronisasi"}</span>
+            </Button>
           </div>
         </div>
 
@@ -710,18 +725,43 @@ export default function DomainsPage() {
                         </span>
                       </div>
 
-                      <div className="flex flex-col gap-0.5">
+                      <div className="flex flex-col gap-0.5 min-w-0">
                         <span className="text-[10px] font-medium text-brand-muted uppercase tracking-wider">
                           Expired Date
                         </span>
-                        <div className="flex items-center gap-1">
-                          <input
-                            type="date"
-                            value={domain.expiresAt ? new Date(domain.expiresAt).toISOString().split("T")[0] : ""}
-                            onChange={(e) => handleUpdateExpiredDate(domain.id, e.target.value)}
-                            className="text-[11px] font-medium px-1.5 py-0.5 rounded border border-brand-border bg-brand-surface text-brand-text focus:outline-none focus:border-brand-primary"
-                          />
-                        </div>
+                        {(() => {
+                          const expDate = domain.expiresAt ? new Date(domain.expiresAt) : null;
+                          const now = new Date();
+                          const diffDays = expDate
+                            ? Math.ceil((expDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+                            : null;
+                          const isExpired = diffDays !== null && diffDays < 0;
+                          const isExpiringSoon = diffDays !== null && diffDays >= 0 && diffDays <= 30;
+
+                          return (
+                            <div className="flex items-center gap-1 min-w-0">
+                              <input
+                                type="date"
+                                value={domain.expiresAt ? new Date(domain.expiresAt).toISOString().split("T")[0] : ""}
+                                onChange={(e) => handleUpdateExpiredDate(domain.id, e.target.value)}
+                                className="w-full max-w-[120px] text-[11px] font-medium px-1.5 py-0.5 rounded border border-brand-border bg-brand-surface text-brand-text focus:outline-none focus:border-brand-primary"
+                              />
+                              {diffDays !== null && (
+                                <span
+                                  className={`text-[9px] font-semibold px-1 py-0.5 rounded shrink-0 ${
+                                    isExpired
+                                      ? "bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300"
+                                      : isExpiringSoon
+                                      ? "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300"
+                                      : "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
+                                  }`}
+                                >
+                                  {isExpired ? "Exp" : `H-${diffDays}`}
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
 
@@ -856,7 +896,7 @@ export default function DomainsPage() {
             <select
               value={selectedRegistrar}
               onChange={(e) => setSelectedRegistrar(e.target.value)}
-              className="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-lg text-sm focus:outline-none focus:border-brand-primary cursor-pointer text-brand-text"
+              className="w-full h-11 px-3 bg-brand-surface border border-brand-border rounded-lg text-sm focus:outline-none focus:border-brand-primary cursor-pointer text-brand-text transition-colors"
             >
               <option value="">-- Pilih Register (Opsional) --</option>
               {registrars.map((r) => (
@@ -875,7 +915,7 @@ export default function DomainsPage() {
                   type="button"
                   onClick={handleCheckNewDomainWhois}
                   disabled={isCheckingNewDomainWhois}
-                  className="text-xs text-brand-primary hover:underline font-medium flex items-center gap-1 cursor-pointer"
+                  className="text-xs text-brand-primary hover:underline font-medium flex items-center gap-1 cursor-pointer py-1"
                 >
                   <Sparkles className={`w-3 h-3 ${isCheckingNewDomainWhois ? "animate-spin" : ""}`} />
                   {isCheckingNewDomainWhois ? "Memeriksa..." : "Auto-Fill via WHOIS"}
@@ -902,7 +942,7 @@ export default function DomainsPage() {
                   nextYear.setFullYear(nextYear.getFullYear() + 1);
                   setNewExpiresAt(nextYear.toISOString().split("T")[0]);
                 }}
-                className="text-xs text-brand-primary hover:underline font-medium"
+                className="text-xs text-brand-primary hover:underline font-medium py-1"
               >
                 + 1 Tahun Otomatis
               </button>
@@ -915,8 +955,14 @@ export default function DomainsPage() {
             />
           </div>
 
-          <div className="pt-4 flex justify-end gap-2 border-t border-brand-border">
-            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)} disabled={isSubmitting}>
+          <div className="pt-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5 sm:gap-2 border-t border-brand-border">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => setIsModalOpen(false)} 
+              disabled={isSubmitting}
+              className="w-full sm:w-auto h-11 sm:h-10 text-sm font-medium"
+            >
               Batal
             </Button>
             <Button
@@ -925,6 +971,7 @@ export default function DomainsPage() {
               loading={isSubmitting}
               loadingText="Mendaftarkan..."
               disabled={!newDomain}
+              className="w-full sm:w-auto h-11 sm:h-10 text-sm font-semibold"
             >
               Daftarkan Zone ke Cloudflare
             </Button>

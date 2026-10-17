@@ -47,6 +47,13 @@
   --font-serif: var(--font-playfair), Georgia, serif;
 }
 
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
 body {
   background-color: var(--color-bg);
   color: var(--color-text-primary);

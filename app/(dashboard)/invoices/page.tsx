@@ -699,7 +699,7 @@ function InvoicesContent() {
                       required
                       value={item.description}
                       onChange={(e) => handleItemChange(idx, "description", e.target.value)}
-                      className="w-full text-xs px-2.5 py-1.5 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
+                      className="w-full text-xs h-9 px-2.5 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
                     />
                   </div>
                   <div className="col-span-3 sm:col-span-2">
@@ -711,7 +711,7 @@ function InvoicesContent() {
                       required
                       value={item.quantity}
                       onChange={(e) => handleItemChange(idx, "quantity", e.target.value === "" ? "" : Number(e.target.value))}
-                      className="w-full text-xs px-2.5 py-1.5 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
+                      className="w-full text-xs h-9 px-2.5 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
                     />
                   </div>
                   <div className="col-span-7 sm:col-span-3">
@@ -720,7 +720,7 @@ function InvoicesContent() {
                       required
                       value={Number(item.rate)}
                       onChange={(val) => handleItemChange(idx, "rate", val)}
-                      className="!h-8 !text-xs !pl-8"
+                      className="!h-9 !text-xs !pl-8"
                     />
                   </div>
                   <div className="col-span-2 sm:col-span-1 flex items-center justify-center">
@@ -758,7 +758,7 @@ function InvoicesContent() {
                   max={100}
                   value={taxRate}
                   onChange={(e) => setTaxRate(e.target.value === "" ? "" : Number(e.target.value))}
-                  className="w-full mt-1 text-xs px-2 py-1 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
+                  className="w-full mt-1 text-xs h-8 px-2 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
                 />
               </div>
               <div>
@@ -766,7 +766,7 @@ function InvoicesContent() {
                 <CurrencyInput
                   value={Number(discount)}
                   onChange={(val) => setDiscount(val)}
-                  className="!h-7 mt-1 !text-xs !pl-8"
+                  className="!h-8 mt-1 !text-xs !pl-8"
                 />
               </div>
             </div>
@@ -783,22 +783,22 @@ function InvoicesContent() {
             </p>
           )}
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2.5 sm:gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
             <Button
               type="button"
               variant="outline"
-              size="sm"
               onClick={() => setIsModalOpen(false)}
               disabled={saving}
+              className="w-full sm:w-auto h-11 sm:h-9 text-sm font-medium"
             >
               Batal
             </Button>
             <Button
               type="submit"
               variant="primary"
-              size="sm"
               loading={saving}
               loadingText="Menyimpan..."
+              className="w-full sm:w-auto h-11 sm:h-9 text-sm font-semibold"
             >
               Buat & Terbitkan Invoice
             </Button>

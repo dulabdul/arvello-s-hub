@@ -94,7 +94,9 @@ export function CategoryManagerModal({ categories, setCategories, isOpen, onClos
                 {cat}
                 <button 
                   onClick={() => handleRemove(cat)}
-                  className="ml-1 w-4 h-4 rounded-full bg-brand-danger/10 text-brand-danger flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-brand-danger hover:text-white"
+                  className="ml-1 w-5 h-5 min-w-[20px] min-h-[20px] rounded-full bg-brand-danger/10 text-brand-danger flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all hover:bg-brand-danger hover:text-white active:scale-95"
+                  title={`Hapus kategori ${cat}`}
+                  aria-label={`Hapus kategori ${cat}`}
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -104,7 +106,7 @@ export function CategoryManagerModal({ categories, setCategories, isOpen, onClos
         </div>
 
         <div className="flex justify-end pt-2">
-          <Button type="button" onClick={onClose} variant="primary">Selesai</Button>
+          <Button type="button" onClick={onClose} variant="primary" className="w-full sm:w-auto h-11 sm:h-9 text-sm font-semibold">Selesai</Button>
         </div>
       </div>
     </Modal>

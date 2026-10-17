@@ -345,22 +345,22 @@ export default function ClientsPage() {
             </p>
           )}
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2.5 sm:gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
             <Button
               type="button"
               variant="outline"
-              size="sm"
               onClick={() => setIsModalOpen(false)}
               disabled={saving}
+              className="w-full sm:w-auto h-11 sm:h-9 text-sm font-medium"
             >
               Batal
             </Button>
             <Button
               type="submit"
               variant="primary"
-              size="sm"
               loading={saving}
               loadingText="Menyimpan..."
+              className="w-full sm:w-auto h-11 sm:h-9 text-sm font-semibold"
             >
               {editingClient ? "Perbarui Klien" : "Simpan Klien"}
             </Button>

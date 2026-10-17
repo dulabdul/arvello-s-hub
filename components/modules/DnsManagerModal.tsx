@@ -85,7 +85,8 @@ export function DnsManagerModal({ domainId, domainName, isOpen, onClose }: DnsMa
           </div>
         )}
 
-        <div className="border border-brand-border rounded-lg overflow-hidden">
+        {/* Desktop Table View */}
+        <div className="hidden sm:block border border-brand-border rounded-xl overflow-hidden">
           <table className="w-full text-sm text-left">
             <thead className="bg-brand-surface border-b border-brand-border text-brand-muted">
               <tr>
@@ -119,16 +120,16 @@ export function DnsManagerModal({ domainId, domainName, isOpen, onClose }: DnsMa
                     <td className="px-4 py-3 text-brand-muted truncate max-w-[200px]" title={record.content}>{record.content}</td>
                     <td className="px-4 py-3">
                       {record.proxied ? (
-                        <span className="text-amber-500 flex items-center gap-1 text-xs font-medium bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200"><Globe className="w-3 h-3"/> Proxied</span>
+                        <span className="text-amber-500 flex items-center gap-1 text-xs font-medium bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800"><Globe className="w-3 h-3"/> Proxied</span>
                       ) : (
-                        <span className="text-slate-400 flex items-center gap-1 text-xs font-medium bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">DNS Only</span>
+                        <span className="text-slate-400 flex items-center gap-1 text-xs font-medium bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">DNS Only</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <button
                         onClick={() => setRecordToDelete(record)}
                         disabled={deletingId === record.id}
-                        className="p-1.5 rounded text-slate-400 hover:text-brand-danger hover:bg-brand-danger/10 disabled:opacity-50"
+                        className="p-1.5 rounded text-slate-400 hover:text-brand-danger hover:bg-brand-danger/10 disabled:opacity-50 transition-colors"
                         title="Hapus Record"
                       >
                         {deletingId === record.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
@@ -141,13 +142,67 @@ export function DnsManagerModal({ domainId, domainName, isOpen, onClose }: DnsMa
           </table>
         </div>
 
-        <div className="flex items-center gap-2 text-xs text-brand-muted bg-brand-surface p-2 rounded border border-brand-border">
+        {/* Mobile Card List View */}
+        <div className="sm:hidden flex flex-col gap-2.5">
+          {loading ? (
+            <div className="py-8 text-center text-brand-muted bg-brand-surface rounded-xl border border-brand-border">
+              <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-brand-primary" />
+              Mengambil data dari Cloudflare...
+            </div>
+          ) : records.length === 0 ? (
+            <div className="py-8 text-center text-brand-muted bg-brand-surface rounded-xl border border-brand-border">
+              <Server className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+              Belum ada DNS Record.
+            </div>
+          ) : (
+            records.map((record) => (
+              <div 
+                key={record.id} 
+                className="p-3 bg-brand-surface rounded-xl border border-brand-border flex flex-col gap-2 shadow-xs"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
+                      {record.type}
+                    </span>
+                    {record.proxied ? (
+                      <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1 text-[11px] font-medium bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800">
+                        <Globe className="w-3 h-3" /> Proxied
+                      </span>
+                    ) : (
+                      <span className="text-slate-500 dark:text-slate-400 text-[11px] font-medium bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                        DNS Only
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setRecordToDelete(record)}
+                    disabled={deletingId === record.id}
+                    className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-brand-danger hover:bg-brand-danger/10 active:scale-95 transition-all disabled:opacity-50"
+                    title="Hapus Record"
+                    aria-label={`Hapus ${record.name}`}
+                  >
+                    {deletingId === record.id ? <Loader2 className="w-4 h-4 animate-spin text-brand-danger" /> : <Trash2 className="w-4 h-4" />}
+                  </button>
+                </div>
+                <div className="text-xs space-y-1">
+                  <div className="font-semibold text-brand-text break-all">{record.name}</div>
+                  <div className="text-brand-muted font-mono text-[11px] break-all bg-brand-bg px-2 py-1 rounded border border-brand-border/60">
+                    {record.content}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 text-xs text-brand-muted bg-brand-surface p-2.5 rounded-xl border border-brand-border">
           <Info className="w-4 h-4 shrink-0 text-brand-primary" />
           <span>Penambahan DNS Record untuk sementara diarahkan langsung via dashboard Cloudflare.</span>
         </div>
 
         <div className="pt-2 flex justify-end">
-          <Button onClick={onClose} variant="primary">Tutup</Button>
+          <Button onClick={onClose} variant="primary" className="w-full sm:w-auto h-11 sm:h-9 text-sm font-semibold">Tutup</Button>
         </div>
       </div>
 

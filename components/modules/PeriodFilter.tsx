@@ -22,17 +22,17 @@ function FilterContent() {
   };
 
   return (
-    <div className="flex items-center gap-2 bg-brand-surface border border-brand-border rounded-full px-3 py-1.5 transition-colors focus-within:border-brand-primary">
+    <div className="flex items-center gap-1.5 sm:gap-2 bg-brand-surface border border-brand-border rounded-full px-2.5 py-1.5 sm:px-3 sm:py-1.5 transition-colors focus-within:border-brand-primary shadow-xs">
       {isPending ? (
-        <Loader2 className="w-4 h-4 text-brand-primary animate-spin" />
+        <Loader2 className="w-3.5 h-3.5 text-brand-primary animate-spin shrink-0" />
       ) : (
-        <CalendarRange className="w-4 h-4 text-brand-muted" />
+        <CalendarRange className="w-3.5 h-3.5 text-brand-muted shrink-0" />
       )}
       <select
         value={currentPeriod}
         onChange={handleChange}
         disabled={isPending}
-        className="bg-transparent text-sm font-medium text-brand-text focus:outline-none cursor-pointer appearance-none pr-4 disabled:opacity-50 transition-opacity"
+        className="bg-transparent text-xs sm:text-sm font-medium text-brand-text focus:outline-none cursor-pointer pr-1 disabled:opacity-50 transition-opacity"
       >
         <option value="all">Semua Waktu</option>
         <option value="this_month">Bulan Ini</option>

@@ -670,7 +670,7 @@ export default function ProjectsPage() {
                 }}
                 onFocus={() => setShowClientDropdown(true)}
                 onBlur={() => setTimeout(() => setShowClientDropdown(false), 200)}
-                className="w-full h-10 px-3.5 rounded-lg border text-sm text-brand-text bg-brand-surface placeholder:text-brand-muted transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20 focus-visible:border-brand-primary border-brand-border"
+                className="w-full h-11 sm:h-10 px-3.5 rounded-lg border text-sm text-brand-text bg-brand-surface placeholder:text-brand-muted transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/20 focus-visible:border-brand-primary border-brand-border"
               />
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
             </div>
@@ -686,7 +686,7 @@ export default function ProjectsPage() {
                         setClientSearchQuery(null);
                         setShowClientDropdown(false);
                       }}
-                      className="px-3.5 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 cursor-pointer flex flex-col"
+                      className="px-3.5 py-2.5 sm:py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 cursor-pointer flex flex-col active:bg-indigo-100 dark:active:bg-indigo-900/60"
                     >
                       <span className="font-medium text-slate-900 dark:text-slate-100">{c.name}</span>
                       {c.company && <span className="text-[10px] text-slate-500">{c.company}</span>}
@@ -779,22 +779,22 @@ export default function ProjectsPage() {
             </p>
           )}
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2.5 sm:gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
             <Button
               type="button"
               variant="outline"
-              size="sm"
               onClick={() => setIsModalOpen(false)}
               disabled={saving}
+              className="w-full sm:w-auto h-11 sm:h-9 text-sm font-medium"
             >
               Batal
             </Button>
             <Button
               type="submit"
               variant="primary"
-              size="sm"
               loading={saving}
               loadingText="Menyimpan..."
+              className="w-full sm:w-auto h-11 sm:h-9 text-sm font-semibold"
             >
               {editingProject ? "Perbarui Proyek" : "Simpan Proyek"}
             </Button>

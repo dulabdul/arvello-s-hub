@@ -131,8 +131,9 @@ export function TransactionModal({ customTrigger }: { customTrigger?: React.Reac
             <button
               type="button"
               onClick={() => setIsCategoryModalOpen(true)}
-              className="mb-1 p-2 rounded-lg bg-brand-surface border border-brand-border text-brand-muted hover:text-brand-text hover:bg-brand-bg/80 transition-colors"
+              className="h-10 w-10 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-lg bg-brand-surface border border-brand-border text-brand-muted hover:text-brand-text hover:bg-brand-bg/80 transition-colors active:scale-95"
               title="Kelola Kategori"
+              aria-label="Kelola Kategori"
             >
               <Settings2 className="w-5 h-5" />
             </button>
@@ -151,8 +152,14 @@ export function TransactionModal({ customTrigger }: { customTrigger?: React.Reac
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
-          <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => setIsOpen(false)} disabled={saving}>
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5 sm:gap-2 pt-4 border-t border-brand-border/60">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => setIsOpen(false)} 
+              disabled={saving}
+              className="w-full sm:w-auto h-11 sm:h-10 text-sm font-medium"
+            >
               Batal
             </Button>
             <Button
@@ -160,6 +167,7 @@ export function TransactionModal({ customTrigger }: { customTrigger?: React.Reac
               variant="primary"
               loading={saving}
               loadingText="Menyimpan..."
+              className="w-full sm:w-auto h-11 sm:h-10 text-sm font-semibold"
             >
               {type === "INCOME" ? "Catat Pemasukan" : "Catat Pengeluaran"}
             </Button>

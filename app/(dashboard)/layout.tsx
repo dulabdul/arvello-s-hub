@@ -8,12 +8,12 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-brand-bg flex flex-col md:flex-row">
+    <div className="min-h-screen bg-brand-bg flex flex-col md:flex-row w-full max-w-full overflow-x-hidden">
       <div className="hidden md:block">
         <Sidebar />
       </div>
-      <div className="md:pl-60 transition-all duration-300 flex-1 flex flex-col pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0">
-        <main className="flex-1">{children}</main>
+      <div className="md:pl-60 transition-all duration-300 flex-1 flex flex-col min-w-0 w-full max-w-full overflow-x-hidden pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0">
+        <main className="flex-1 min-w-0 w-full max-w-full overflow-x-hidden">{children}</main>
       </div>
       <div className="md:hidden">
         <MobileNav />

@@ -29,14 +29,14 @@ export function FinancialChart({ data }: FinancialChartProps) {
   const colorInfo = "#2563EB"; // Blue
 
   return (
-    <div className="w-full h-80 -ml-4 md:-ml-0">
+    <div className="w-full max-w-full h-72 sm:h-80 overflow-hidden">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={data}
           margin={{
             top: 20,
             right: 10,
-            left: 0,
+            left: -15,
             bottom: 5,
           }}
         >

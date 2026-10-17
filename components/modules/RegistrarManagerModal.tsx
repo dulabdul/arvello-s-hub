@@ -212,7 +212,7 @@ export function RegistrarManagerModal({
                 <button
                   type="button"
                   onClick={() => handleRemove(reg.id, reg.name)}
-                  className="w-4 h-4 rounded-full flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors ml-0.5"
+                  className="w-5 h-5 min-w-[20px] min-h-[20px] rounded-full flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 active:scale-95 transition-all ml-1"
                   title={`Hapus ${reg.name}`}
                   aria-label={`Hapus ${reg.name}`}
                 >
@@ -224,7 +224,7 @@ export function RegistrarManagerModal({
         </div>
 
         <div className="flex justify-end pt-2 border-t border-brand-border">
-          <Button type="button" onClick={onClose} variant="primary">
+          <Button type="button" onClick={onClose} variant="primary" className="w-full sm:w-auto h-11 sm:h-9 text-sm font-semibold">
             Selesai
           </Button>
         </div>

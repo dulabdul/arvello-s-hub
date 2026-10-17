@@ -46,13 +46,14 @@ export function ConfirmModal({
           </p>
         </div>
 
-        <div className="flex items-center justify-end gap-2.5 pt-2">
+        <div className="grid grid-cols-2 gap-2.5 pt-2 sm:flex sm:items-center sm:justify-end sm:gap-2.5">
           <Button
             type="button"
             variant="outline"
             size="md"
             onClick={onClose}
             disabled={loading}
+            className="w-full sm:w-auto h-11 sm:h-10 text-sm font-medium"
           >
             {cancelText}
           </Button>
@@ -63,6 +64,7 @@ export function ConfirmModal({
             loading={loading}
             loadingText={`${confirmText}...`}
             onClick={onConfirm}
+            className="w-full sm:w-auto h-11 sm:h-10 text-sm font-semibold"
           >
             {confirmText}
           </Button>
