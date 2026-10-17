@@ -15,7 +15,10 @@ interface GroupedAlerts {
   upcoming: DomainAlertItem[]; // <= 30 days
 }
 
-export function generateDomainExpiryDigestHtml(grouped: GroupedAlerts, appUrl: string = "http://localhost:3000"): string {
+export function generateDomainExpiryDigestHtml(
+  grouped: GroupedAlerts,
+  appUrl: string = "http://localhost:3000"
+): string {
   const totalCount =
     grouped.critical.length +
     grouped.urgent.length +
@@ -29,132 +32,309 @@ export function generateDomainExpiryDigestHtml(grouped: GroupedAlerts, appUrl: s
     year: "numeric",
   });
 
-  const renderDomainCard = (item: DomainAlertItem, badgeBg: string, badgeText: string, label: string) => {
+  const getTierStyles = (tier: "critical" | "urgent" | "warning" | "upcoming") => {
+    switch (tier) {
+      case "critical":
+        return {
+          label: "Kritis",
+          icon: "🚨",
+          badgeBg: "#450a0a",
+          badgeText: "#fca5a5",
+          badgeBorder: "#dc2626",
+          kpiBg: "#1c0a0e",
+          kpiNum: "#f87171",
+          kpiText: "#fca5a5",
+          kpiBorder: "#7f1d1d",
+        };
+      case "urgent":
+        return {
+          label: "Mendesak",
+          icon: "⚠️",
+          badgeBg: "#431407",
+          badgeText: "#fdba74",
+          badgeBorder: "#ea580c",
+          kpiBg: "#1f1007",
+          kpiNum: "#fb923c",
+          kpiText: "#fdba74",
+          kpiBorder: "#9a3412",
+        };
+      case "warning":
+        return {
+          label: "Peringatan",
+          icon: "⏳",
+          badgeBg: "#422006",
+          badgeText: "#fde047",
+          badgeBorder: "#ca8a04",
+          kpiBg: "#1f1807",
+          kpiNum: "#facc15",
+          kpiText: "#fde047",
+          kpiBorder: "#854d0e",
+        };
+      case "upcoming":
+        return {
+          label: "Pengingat",
+          icon: "📅",
+          badgeBg: "#172554",
+          badgeText: "#93c5fd",
+          badgeBorder: "#2563eb",
+          kpiBg: "#0c152e",
+          kpiNum: "#60a5fa",
+          kpiText: "#93c5fd",
+          kpiBorder: "#1e40af",
+        };
+    }
+  };
+
+  const renderDomainCard = (item: DomainAlertItem, tier: "critical" | "urgent" | "warning" | "upcoming") => {
+    const styles = getTierStyles(tier);
     const formattedDate = new Date(item.expiresAt).toLocaleDateString("id-ID", {
       day: "numeric",
       month: "short",
       year: "numeric",
     });
 
-    const regColor = item.registrarColor || "#475569";
+    const regColor = item.registrarColor || "#38bdf8";
     const regName = item.registrar || "Belum diatur";
 
     return `
-      <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
-        <div style="flex: 1; min-width: 0;">
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-            <span style="font-size: 15px; font-weight: 700; color: #0f172a; letter-spacing: -0.2px;">${item.name}</span>
-            <span style="font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; background-color: ${regColor}15; color: ${regColor}; border: 1px solid ${regColor}30;">
-              ${regName}
-            </span>
-          </div>
-          <div style="font-size: 12px; color: #64748b;">
-            Jatuh Tempo: <strong style="color: #334155;">${formattedDate}</strong>
-          </div>
-        </div>
-        <div style="text-align: right; margin-left: 12px;">
-          <span style="display: inline-block; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 8px; background-color: ${badgeBg}; color: ${badgeText};">
-            ${label} (H-${item.diffDays})
-          </span>
-        </div>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #172033; border: 1px solid #28354f; border-radius: 14px; margin-bottom: 12px; overflow: hidden;">
+        <tr>
+          <td style="padding: 16px 18px;">
+            <!-- Row 1: Domain Name + Expiry Pill -->
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="vertical-align: middle; text-align: left;">
+                  <a href="${appUrl}/domains" target="_blank" style="font-size: 16px; font-weight: 800; color: #ffffff !important; text-decoration: none; letter-spacing: -0.2px;">
+                    ${item.name}
+                  </a>
+                </td>
+                <td style="vertical-align: middle; text-align: right; white-space: nowrap;">
+                  <span style="display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; background-color: ${styles.badgeBg}; color: ${styles.badgeText} !important; border: 1px solid ${styles.badgeBorder}; letter-spacing: 0.3px;">
+                    H-${item.diffDays} · ${styles.label}
+                  </span>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Divider -->
+            <div style="height: 1px; background-color: #232f48; margin: 12px 0;"></div>
+
+            <!-- Row 2: Registrar Pill + Due Date -->
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="vertical-align: middle; text-align: left;">
+                  <span style="display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; background-color: rgba(255, 255, 255, 0.07); color: #f1f5f9 !important; border: 1px solid ${regColor}60;">
+                    <span style="color: ${regColor}; font-size: 12px; margin-right: 4px;">●</span>${regName}
+                  </span>
+                </td>
+                <td style="vertical-align: middle; text-align: right; font-size: 12px; color: #94a3b8 !important;">
+                  Jatuh tempo: <strong style="color: #ffffff !important;">${formattedDate}</strong>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    `;
+  };
+
+  const renderSection = (
+    title: string,
+    items: DomainAlertItem[],
+    tier: "critical" | "urgent" | "warning" | "upcoming"
+  ) => {
+    if (items.length === 0) return "";
+    const styles = getTierStyles(tier);
+
+    return `
+      <div style="margin-top: 24px; margin-bottom: 8px;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 10px;">
+          <tr>
+            <td style="font-size: 13px; font-weight: 800; color: #cbd5e1 !important; text-transform: uppercase; letter-spacing: 0.8px;">
+              ${styles.icon} ${title} (${items.length})
+            </td>
+          </tr>
+        </table>
+        ${items.map((it) => renderDomainCard(it, tier)).join("")}
       </div>
     `;
   };
 
-  const renderSection = (title: string, icon: string, items: DomainAlertItem[], badgeBg: string, badgeText: string, label: string) => {
-    if (items.length === 0) return "";
-    return `
-      <div style="margin-top: 24px;">
-        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-          <span style="font-size: 16px;">${icon}</span>
-          <h3 style="font-size: 13px; font-weight: 800; color: #334155; text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">
-            ${title} (${items.length})
-          </h3>
-        </div>
-        <div>
-          ${items.map((it) => renderDomainCard(it, badgeBg, badgeText, label)).join("")}
-        </div>
-      </div>
-    `;
-  };
+  const criticalStyles = getTierStyles("critical");
+  const urgentStyles = getTierStyles("urgent");
+  const warningStyles = getTierStyles("warning");
+  const upcomingStyles = getTierStyles("upcoming");
 
   return `
-    <!DOCTYPE html>
-    <html lang="id">
+    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    <html xmlns="http://www.w3.org/1999/xhtml" lang="id">
     <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <meta name="color-scheme" content="light dark" />
+      <meta name="supported-color-schemes" content="light dark" />
       <title>Domain Expiry Digest - Arvello's Hub</title>
+      <style type="text/css">
+        :root {
+          color-scheme: light dark;
+          supported-color-schemes: light dark;
+        }
+        body, table, td, p, a {
+          -webkit-text-size-adjust: 100%;
+          -ms-text-size-adjust: 100%;
+        }
+        table, td {
+          mso-table-lspace: 0pt;
+          mso-table-rspace: 0pt;
+        }
+        img {
+          -ms-interpolation-mode: bicubic;
+          border: 0;
+          height: auto;
+          line-height: 100%;
+          outline: none;
+          text-decoration: none;
+        }
+      </style>
     </head>
-    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px 12px; color: #0f172a;">
-      <div style="max-width: 580px; margin: 0 auto; background-color: #ffffff; border-radius: 20px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
-        
-        <!-- Header -->
-        <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 28px 24px; color: #ffffff;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-            <span style="font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #94a3b8;">
-              ARVELLO'S HUB · DOMAINOPS
-            </span>
-            <span style="font-size: 11px; background-color: rgba(255, 255, 255, 0.12); padding: 3px 8px; border-radius: 6px; color: #cbd5e1;">
-              ${nowFormatted}
-            </span>
-          </div>
-          <h1 style="font-size: 22px; font-weight: 800; margin: 0 0 6px 0; letter-spacing: -0.5px;">
-            Domain Expiry Digest
-          </h1>
-          <p style="font-size: 13px; color: #94a3b8; margin: 0; line-height: 1.4;">
-            Terdapat <strong style="color: #f8fafc;">${totalCount} domain</strong> yang mendekati batas waktu jatuh tempo perpanjangan (H-3, H-7, H-14, H-30).
-          </p>
-        </div>
+    <body style="margin: 0; padding: 20px 10px; background-color: #0b0f19 !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #f8fafc;">
+      
+      <!-- Outer Centered Container -->
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #0b0f19;">
+        <tr>
+          <td align="center">
+            
+            <!-- Main Email Card (Max 580px) -->
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 580px; background-color: #111827; border-radius: 20px; border: 1px solid #1f293d; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);">
+              
+              <!-- Header Section -->
+              <tr>
+                <td style="padding: 28px 24px 22px 24px; background: linear-gradient(180deg, #162035 0%, #111827 100%); border-bottom: 1px solid #1f293d;">
+                  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                      <td style="font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: #38bdf8 !important;">
+                        ARVELLO'S HUB · DOMAINOPS
+                      </td>
+                      <td style="text-align: right; font-size: 11px; color: #94a3b8 !important; font-weight: 600;">
+                        ${nowFormatted}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colspan="2" style="padding-top: 14px;">
+                        <h1 style="margin: 0; font-size: 24px; font-weight: 900; color: #ffffff !important; letter-spacing: -0.5px; line-height: 1.2;">
+                          Domain Expiry Digest
+                        </h1>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colspan="2" style="padding-top: 8px;">
+                        <p style="margin: 0; font-size: 13px; color: #94a3b8 !important; line-height: 1.5;">
+                          Terdapat <strong style="color: #38bdf8 !important;">${totalCount} domain</strong> yang mendekati batas waktu jatuh tempo perpanjangan (H-3, H-7, H-14, H-30).
+                        </p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
 
-        <!-- Content Body -->
-        <div style="padding: 24px;">
+              <!-- Content Body -->
+              <tr>
+                <td style="padding: 24px;">
 
-          <!-- KPI Summary Badges -->
-          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px;">
-            <div style="background-color: #fef2f2; border: 1px solid #fee2e2; border-radius: 10px; padding: 10px 8px; text-align: center;">
-              <div style="font-size: 18px; font-weight: 800; color: #e11d48;">${grouped.critical.length}</div>
-              <div style="font-size: 10px; font-weight: 700; color: #9f1239; text-transform: uppercase;">Sisa 3 Hari</div>
-            </div>
-            <div style="background-color: #fff7ed; border: 1px solid #ffedd5; border-radius: 10px; padding: 10px 8px; text-align: center;">
-              <div style="font-size: 18px; font-weight: 800; color: #ea580c;">${grouped.urgent.length}</div>
-              <div style="font-size: 10px; font-weight: 700; color: #9a3412; text-transform: uppercase;">Sisa 7 Hari</div>
-            </div>
-            <div style="background-color: #fefce8; border: 1px solid #fef9c3; border-radius: 10px; padding: 10px 8px; text-align: center;">
-              <div style="font-size: 18px; font-weight: 800; color: #ca8a04;">${grouped.warning.length}</div>
-              <div style="font-size: 10px; font-weight: 700; color: #854d0e; text-transform: uppercase;">Sisa 14 Hari</div>
-            </div>
-            <div style="background-color: #eff6ff; border: 1px solid #dbeafe; border-radius: 10px; padding: 10px 8px; text-align: center;">
-              <div style="font-size: 18px; font-weight: 800; color: #2563eb;">${grouped.upcoming.length}</div>
-              <div style="font-size: 10px; font-weight: 700; color: #1e40af; text-transform: uppercase;">Sisa 30 Hari</div>
-            </div>
-          </div>
+                  <!-- 4-Column Table-Based KPI Summary Bar (Bulletproof in Mobile Email Clients) -->
+                  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 20px;">
+                    <tr>
+                      <!-- Kritis H-3 -->
+                      <td width="24%" align="center" style="background-color: ${criticalStyles.kpiBg}; border: 1px solid ${criticalStyles.kpiBorder}; border-radius: 10px; padding: 10px 4px;">
+                        <div style="font-size: 20px; font-weight: 900; color: ${criticalStyles.kpiNum} !important; line-height: 1;">
+                          ${grouped.critical.length}
+                        </div>
+                        <div style="font-size: 9px; font-weight: 800; color: ${criticalStyles.kpiText} !important; text-transform: uppercase; margin-top: 5px; letter-spacing: 0.3px;">
+                          Sisa 3 Hari
+                        </div>
+                      </td>
 
-          <!-- Groups -->
-          ${renderSection("Kritis (Segera Tindak)", "🚨", grouped.critical, "#fef2f2", "#be123c", "Kritis")}
-          ${renderSection("Mendesak", "⚠️", grouped.urgent, "#fff7ed", "#c2410c", "Mendesak")}
-          ${renderSection("Peringatan Dua Pekan", "⏳", grouped.warning, "#fefce8", "#a16207", "Peringatan")}
-          ${renderSection("Pengingat Awal Satu Bulan", "📅", grouped.upcoming, "#eff6ff", "#1d4ed8", "Pengingat")}
+                      <td width="1.3%"></td>
 
-          <!-- Action Button -->
-          <div style="margin-top: 32px; text-align: center;">
-            <a href="${appUrl}/domains" target="_blank" style="display: inline-block; background-color: #0052cc; color: #ffffff; font-size: 14px; font-weight: 700; padding: 13px 28px; border-radius: 12px; text-decoration: none; box-shadow: 0 2px 4px rgba(0, 82, 204, 0.2);">
-              Buka Dashboard Domain &rarr;
-            </a>
-            <p style="font-size: 11px; color: #94a3b8; margin-top: 10px;">
-              Kelola DNS, update status registrar, atau perbarui tanggal expire di Command Center.
-            </p>
-          </div>
+                      <!-- Mendesak H-7 -->
+                      <td width="24%" align="center" style="background-color: ${urgentStyles.kpiBg}; border: 1px solid ${urgentStyles.kpiBorder}; border-radius: 10px; padding: 10px 4px;">
+                        <div style="font-size: 20px; font-weight: 900; color: ${urgentStyles.kpiNum} !important; line-height: 1;">
+                          ${grouped.urgent.length}
+                        </div>
+                        <div style="font-size: 9px; font-weight: 800; color: ${urgentStyles.kpiText} !important; text-transform: uppercase; margin-top: 5px; letter-spacing: 0.3px;">
+                          Sisa 7 Hari
+                        </div>
+                      </td>
 
-        </div>
+                      <td width="1.3%"></td>
 
-        <!-- Footer -->
-        <div style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 18px 24px; text-align: center; font-size: 11px; color: #64748b;">
-          Email ini dikirimkan secara otomatis oleh <strong>Arvello's Hub DomainOps Engine</strong>.<br>
-          Diberdayakan oleh Resend & GitHub Actions Cron.
-        </div>
+                      <!-- Peringatan H-14 -->
+                      <td width="24%" align="center" style="background-color: ${warningStyles.kpiBg}; border: 1px solid ${warningStyles.kpiBorder}; border-radius: 10px; padding: 10px 4px;">
+                        <div style="font-size: 20px; font-weight: 900; color: ${warningStyles.kpiNum} !important; line-height: 1;">
+                          ${grouped.warning.length}
+                        </div>
+                        <div style="font-size: 9px; font-weight: 800; color: ${warningStyles.kpiText} !important; text-transform: uppercase; margin-top: 5px; letter-spacing: 0.3px;">
+                          Sisa 14 Hari
+                        </div>
+                      </td>
 
-      </div>
+                      <td width="1.3%"></td>
+
+                      <!-- Pengingat H-30 -->
+                      <td width="24%" align="center" style="background-color: ${upcomingStyles.kpiBg}; border: 1px solid ${upcomingStyles.kpiBorder}; border-radius: 10px; padding: 10px 4px;">
+                        <div style="font-size: 20px; font-weight: 900; color: ${upcomingStyles.kpiNum} !important; line-height: 1;">
+                          ${grouped.upcoming.length}
+                        </div>
+                        <div style="font-size: 9px; font-weight: 800; color: ${upcomingStyles.kpiText} !important; text-transform: uppercase; margin-top: 5px; letter-spacing: 0.3px;">
+                          Sisa 30 Hari
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+
+                  <!-- Group Sections -->
+                  ${renderSection("Kritis — Segera Perpanjang", grouped.critical, "critical")}
+                  ${renderSection("Mendesak — Sisa Satu Pekan", grouped.urgent, "urgent")}
+                  ${renderSection("Peringatan Dua Pekan", grouped.warning, "warning")}
+                  ${renderSection("Pengingat Awal Satu Bulan", grouped.upcoming, "upcoming")}
+
+                  <!-- Action CTA Button -->
+                  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top: 28px;">
+                    <tr>
+                      <td align="center">
+                        <table cellpadding="0" cellspacing="0" border="0">
+                          <tr>
+                            <td align="center" style="border-radius: 12px; background-color: #0052cc; box-shadow: 0 4px 12px rgba(0, 82, 204, 0.35);">
+                              <a href="${appUrl}/domains" target="_blank" style="display: inline-block; padding: 14px 32px; font-size: 14px; font-weight: 800; color: #ffffff !important; text-decoration: none; letter-spacing: 0.2px;">
+                                Buka Dashboard Domain &rarr;
+                              </a>
+                            </td>
+                          </tr>
+                        </table>
+                        <p style="margin: 12px 0 0 0; font-size: 11px; color: #94a3b8 !important;">
+                          Kelola DNS, update status registrar, atau perbarui tanggal expire di Command Center.
+                        </p>
+                      </td>
+                    </tr>
+                  </table>
+
+                </td>
+              </tr>
+
+              <!-- Footer Section -->
+              <tr>
+                <td style="padding: 20px 24px; background-color: #0d131f; border-top: 1px solid #1f293d; text-align: center; font-size: 11px; color: #64748b !important; line-height: 1.5;">
+                  Email notifikasi ini dikirim otomatis oleh <strong style="color: #94a3b8 !important;">Arvello's Hub DomainOps Engine</strong>.<br />
+                  Diberdayakan oleh Resend &amp; GitHub Actions Cron.
+                </td>
+              </tr>
+
+            </table>
+
+          </td>
+        </tr>
+      </table>
+
     </body>
     </html>
   `;
