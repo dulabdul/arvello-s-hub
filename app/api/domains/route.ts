@@ -52,10 +52,10 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { name, projectId } = body;
+    const { name, registrar, projectId, expiresAt } = body;
 
-    if (!name || !projectId) {
-      return NextResponse.json({ error: "Domain name and projectId are required" }, { status: 400 });
+    if (!name) {
+      return NextResponse.json({ error: "Nama domain wajib diisi" }, { status: 400 });
     }
 
     // 1. Call Cloudflare API to create zone
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
     try {
       zoneResult = await createZone(name);
     } catch (cfError: any) {
-      return NextResponse.json({ error: cfError.message || "Failed to create zone on Cloudflare" }, { status: 400 });
+      return NextResponse.json({ error: cfError.message || "Gagal membuat zone di Cloudflare" }, { status: 400 });
     }
 
     // 2. Save to database
@@ -71,7 +71,9 @@ export async function POST(req: Request) {
       data: {
         name: zoneResult.name,
         zoneId: zoneResult.id,
-        projectId,
+        registrar: registrar || null,
+        projectId: projectId || null,
+        expiresAt: expiresAt ? new Date(expiresAt) : null,
         status: zoneResult.status === "active" ? "ACTIVE" : "PENDING",
       }
     });

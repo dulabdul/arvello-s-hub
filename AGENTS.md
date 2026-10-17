@@ -19,3 +19,12 @@ For UI, copy, people, mobile layout, or code comments work, load the antislop sk
 - Copy & text: `antislop-copywriting`
 Before starting, ask the user when antislop applies: during the work, or after it is done.
 <!-- antislop:end -->
+
+<!-- ryux-rules:start -->
+## RYUX
+
+RYUX is installed as one skill, `ryux`, in this project's agent skills folder. For UI, UX, copy, or
+frontend work, say what you are doing (analyze, design, build, critique, or QA); RYUX picks the
+knowledge it needs and ends with the Delivery Gate. Reference data and structured review will come
+from the ryux MCP, which is not available yet.
+<!-- ryux-rules:end -->

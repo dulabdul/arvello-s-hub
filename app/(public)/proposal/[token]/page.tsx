@@ -4,8 +4,10 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { CheckCircle2, XCircle, FileText } from "lucide-react";
 import { formatCurrency } from "@/lib/services/invoice/calculator";
+import { toast } from "sonner";
 
 export default function PublicProposalPage() {
   const params = useParams();
@@ -15,6 +17,7 @@ export default function PublicProposalPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [processing, setProcessing] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<"ACCEPT" | "REJECT" | null>(null);
 
   useEffect(() => {
     if (token) {
@@ -34,24 +37,25 @@ export default function PublicProposalPage() {
     }
   }, [token]);
 
-  const handleAction = async (action: "ACCEPT" | "REJECT") => {
-    if (!confirm(action === "ACCEPT" ? "Anda yakin ingin menerima proposal ini?" : "Anda yakin ingin menolak proposal ini?")) return;
-    
+  const executeAction = async () => {
+    if (!confirmAction) return;
     setProcessing(true);
     try {
       const res = await fetch(`/api/public/proposal/${token}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ action: confirmAction }),
       });
       if (res.ok) {
-        setProposal({ ...proposal, status: action === "ACCEPT" ? "ACCEPTED" : "REJECTED" });
+        setProposal({ ...proposal, status: confirmAction === "ACCEPT" ? "ACCEPTED" : "REJECTED" });
+        toast.success(confirmAction === "ACCEPT" ? "Terima kasih! Proposal telah Anda terima." : "Proposal telah ditolak.");
+        setConfirmAction(null);
       } else {
-        alert("Terjadi kesalahan. Silakan coba lagi.");
+        toast.error("Terjadi kesalahan saat memproses keputusan.");
       }
     } catch (err) {
       console.error(err);
-      alert("Terjadi kesalahan sistem.");
+      toast.error("Terjadi kesalahan sistem.");
     } finally {
       setProcessing(false);
     }
@@ -145,7 +149,7 @@ export default function PublicProposalPage() {
               <Button 
                 variant="outline" 
                 className="flex-1 sm:flex-none text-brand-danger border-brand-danger/20 hover:bg-brand-danger/10"
-                onClick={() => handleAction("REJECT")}
+                onClick={() => setConfirmAction("REJECT")}
                 disabled={processing}
               >
                 Tolak
@@ -153,7 +157,7 @@ export default function PublicProposalPage() {
               <Button 
                 variant="primary" 
                 className="flex-1 sm:flex-none bg-brand-success hover:bg-brand-success/90 text-white"
-                onClick={() => handleAction("ACCEPT")}
+                onClick={() => setConfirmAction("ACCEPT")}
                 disabled={processing}
               >
                 <CheckCircle2 className="w-4 h-4 mr-2" />
@@ -163,6 +167,22 @@ export default function PublicProposalPage() {
           </div>
         </div>
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!confirmAction}
+        onClose={() => setConfirmAction(null)}
+        onConfirm={executeAction}
+        title={confirmAction === "ACCEPT" ? "Terima Penawaran Proyek" : "Tolak Penawaran Proyek"}
+        description={
+          confirmAction === "ACCEPT"
+            ? `Dengan menerima proposal ini, Anda menyetujui lingkup kerja dan nilai kontrak sebesar ${formatCurrency(proposal?.total, proposal?.currency)}. Anda siap melanjutkan ke tahap pengerjaan?`
+            : "Apakah Anda yakin ingin menolak penawaran proposal ini?"
+        }
+        confirmText={confirmAction === "ACCEPT" ? "Ya, Terima Penawaran" : "Tolak Proposal"}
+        variant={confirmAction === "ACCEPT" ? "primary" : "danger"}
+        loading={processing}
+      />
     </div>
   );
 }

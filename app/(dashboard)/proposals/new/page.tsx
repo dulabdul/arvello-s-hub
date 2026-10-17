@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/Card";
 import { ArrowLeft, ArrowRight, Plus, Trash2, CheckCircle2 } from "lucide-react";
 import { ClientData } from "@/lib/db/store";
 import { InvoiceItem, calculateSubtotal, calculateTotal } from "@/lib/services/invoice/calculator";
+import { toast } from "sonner";
 
 const DEFAULT_CONTENT = [
   { id: "objective", title: "Tujuan Proyek", body: "" },
@@ -74,6 +75,12 @@ export default function NewProposalPage() {
   };
 
   const handleSave = async () => {
+    if (!title) {
+      toast.error("Judul proposal wajib diisi");
+      setStep(1);
+      return;
+    }
+
     setSaving(true);
     try {
       const payload = {
@@ -94,12 +101,15 @@ export default function NewProposalPage() {
       });
 
       if (res.ok) {
+        toast.success("Proposal berhasil dibuat!");
         router.push("/proposals");
       } else {
-        alert("Gagal membuat proposal");
+        const errData = await res.json().catch(() => null);
+        toast.error(errData?.error || "Gagal membuat proposal");
       }
     } catch (err) {
       console.error(err);
+      toast.error("Terjadi kesalahan sistem saat membuat proposal");
     } finally {
       setSaving(false);
     }
@@ -112,15 +122,20 @@ export default function NewProposalPage() {
         subtitle={`Langkah ${step} dari 3`}
         actions={
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => router.push("/proposals")}>Batal</Button>
+            <Button variant="outline" onClick={() => router.push("/proposals")} disabled={saving}>Batal</Button>
             {step < 3 ? (
               <Button variant="primary" onClick={() => setStep(step + 1)}>
                 Selanjutnya <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             ) : (
-              <Button variant="primary" onClick={handleSave} disabled={saving}>
-                <CheckCircle2 className="w-4 h-4 mr-2" />
-                {saving ? "Menyimpan..." : "Simpan & Selesai"}
+              <Button
+                variant="primary"
+                onClick={handleSave}
+                loading={saving}
+                loadingText="Menyimpan..."
+                icon={<CheckCircle2 className="w-4 h-4 mr-1" />}
+              >
+                Simpan & Selesai
               </Button>
             )}
           </div>

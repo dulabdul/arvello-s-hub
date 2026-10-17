@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input, Select, CurrencyInput } from "@/components/ui/Input";
-import { Plus, Loader2, Settings2 } from "lucide-react";
+import { Plus, Settings2 } from "lucide-react";
+import { toast } from "sonner";
 import { CategoryManagerModal } from "./CategoryManagerModal";
 
 export function TransactionModal({ customTrigger }: { customTrigger?: React.ReactNode }) {
@@ -58,6 +59,11 @@ export function TransactionModal({ customTrigger }: { customTrigger?: React.Reac
         }),
       });
       if (res.ok) {
+        toast.success(
+          type === "INCOME"
+            ? "Pemasukan berhasil dicatat!"
+            : "Pengeluaran berhasil dicatat!"
+        );
         setIsOpen(false);
         setAmount(0);
         setCategory("");
@@ -65,11 +71,11 @@ export function TransactionModal({ customTrigger }: { customTrigger?: React.Reac
         router.refresh(); // Refresh server component data
       } else {
         const err = await res.json();
-        alert(err.error || "Gagal mencatat transaksi");
+        toast.error(err.error || "Gagal mencatat transaksi");
       }
     } catch (err) {
       console.error(err);
-      alert("Terjadi kesalahan sistem");
+      toast.error("Terjadi kesalahan sistem saat mencatat transaksi");
     } finally {
       setSaving(false);
     }
@@ -146,10 +152,16 @@ export function TransactionModal({ customTrigger }: { customTrigger?: React.Reac
             onChange={(e) => setDescription(e.target.value)}
           />
           <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>Batal</Button>
-            <Button type="submit" variant="primary" disabled={saving}>
-              {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {saving ? "Menyimpan..." : (type === "INCOME" ? "Catat Pemasukan" : "Catat Pengeluaran")}
+            <Button type="button" variant="outline" onClick={() => setIsOpen(false)} disabled={saving}>
+              Batal
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              loading={saving}
+              loadingText="Menyimpan..."
+            >
+              {type === "INCOME" ? "Catat Pemasukan" : "Catat Pengeluaran"}
             </Button>
           </div>
         </form>

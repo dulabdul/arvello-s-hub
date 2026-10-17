@@ -5,6 +5,7 @@ import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Plus, X, Loader2, Tag } from "lucide-react";
+import { toast } from "sonner";
 
 interface CategoryManagerModalProps {
   categories: string[];
@@ -19,17 +20,23 @@ export function CategoryManagerModal({ categories, setCategories, isOpen, onClos
 
   const handleAdd = async () => {
     const trimmed = newCat.trim();
-    if (!trimmed || categories.includes(trimmed)) return;
+    if (!trimmed) return;
+    if (categories.includes(trimmed)) {
+      toast.error("Kategori sudah ada");
+      return;
+    }
     
     const updated = [...categories, trimmed];
     setCategories(updated);
     setNewCat("");
+    toast.success(`Kategori "${trimmed}" berhasil ditambahkan`);
     await saveCategories(updated);
   };
 
   const handleRemove = async (catToRemove: string) => {
     const updated = categories.filter(c => c !== catToRemove);
     setCategories(updated);
+    toast.success(`Kategori "${catToRemove}" dihapus`);
     await saveCategories(updated);
   };
 
@@ -43,6 +50,7 @@ export function CategoryManagerModal({ categories, setCategories, isOpen, onClos
       });
     } catch (error) {
       console.error(error);
+      toast.error("Gagal menyimpan perubahan kategori");
     } finally {
       setSaving(false);
     }

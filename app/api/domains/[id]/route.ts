@@ -44,3 +44,25 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     return NextResponse.json({ error: error.message || "Failed to delete domain" }, { status: 500 });
   }
 }
+
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    const body = await req.json();
+    const { registrar, expiresAt } = body;
+
+    const updated = await prisma.domain.update({
+      where: { id },
+      data: {
+        registrar: registrar !== undefined ? registrar : undefined,
+        expiresAt: expiresAt !== undefined ? (expiresAt ? new Date(expiresAt) : null) : undefined,
+      }
+    });
+
+    return NextResponse.json(updated);
+  } catch (error: any) {
+    console.error("Error updating domain:", error);
+    return NextResponse.json({ error: error.message || "Gagal memperbarui domain" }, { status: 500 });
+  }
+}
+

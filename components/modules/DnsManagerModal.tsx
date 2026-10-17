@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import { Modal } from "@/components/ui/Modal";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Button } from "@/components/ui/Button";
 import { Loader2, Trash2, Globe, Server, Info } from "lucide-react";
+import { toast } from "sonner";
 
 interface DnsRecord {
   id: string;
@@ -26,6 +28,7 @@ export function DnsManagerModal({ domainId, domainName, isOpen, onClose }: DnsMa
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [recordToDelete, setRecordToDelete] = useState<DnsRecord | null>(null);
 
   const fetchRecords = async () => {
     setLoading(true);
@@ -48,18 +51,20 @@ export function DnsManagerModal({ domainId, domainName, isOpen, onClose }: DnsMa
     }
   }, [isOpen, domainId]);
 
-  const handleDelete = async (recordId: string) => {
-    if (!confirm("Yakin ingin menghapus DNS Record ini?")) return;
-    setDeletingId(recordId);
+  const confirmDeleteRecord = async () => {
+    if (!recordToDelete) return;
+    setDeletingId(recordToDelete.id);
     try {
-      const res = await fetch(`/api/domains/${domainId}/dns?recordId=${recordId}`, { method: "DELETE" });
+      const res = await fetch(`/api/domains/${domainId}/dns?recordId=${recordToDelete.id}`, { method: "DELETE" });
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || "Gagal menghapus");
       }
-      setRecords(records.filter(r => r.id !== recordId));
+      toast.success(`DNS Record ${recordToDelete.type} (${recordToDelete.name}) berhasil dihapus`);
+      setRecords(records.filter(r => r.id !== recordToDelete.id));
+      setRecordToDelete(null);
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message || "Gagal menghapus DNS Record");
     } finally {
       setDeletingId(null);
     }
@@ -121,9 +126,10 @@ export function DnsManagerModal({ domainId, domainName, isOpen, onClose }: DnsMa
                     </td>
                     <td className="px-4 py-3 text-right">
                       <button
-                        onClick={() => handleDelete(record.id)}
+                        onClick={() => setRecordToDelete(record)}
                         disabled={deletingId === record.id}
                         className="p-1.5 rounded text-slate-400 hover:text-brand-danger hover:bg-brand-danger/10 disabled:opacity-50"
+                        title="Hapus Record"
                       >
                         {deletingId === record.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                       </button>
@@ -144,6 +150,18 @@ export function DnsManagerModal({ domainId, domainName, isOpen, onClose }: DnsMa
           <Button onClick={onClose} variant="primary">Tutup</Button>
         </div>
       </div>
+
+      {/* Confirmation Modal Hapus DNS */}
+      <ConfirmModal
+        isOpen={!!recordToDelete}
+        onClose={() => setRecordToDelete(null)}
+        onConfirm={confirmDeleteRecord}
+        title="Hapus DNS Record"
+        description={`Apakah Anda yakin ingin menghapus record ${recordToDelete?.type} (${recordToDelete?.name})? Aksi ini akan langsung terhubung ke Cloudflare.`}
+        confirmText="Hapus Record"
+        variant="danger"
+        loading={!!deletingId}
+      />
     </Modal>
   );
 }

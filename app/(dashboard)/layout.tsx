@@ -12,7 +12,7 @@ export default function DashboardLayout({
       <div className="hidden md:block">
         <Sidebar />
       </div>
-      <div className="md:pl-60 transition-all duration-300 flex-1 flex flex-col pb-[60px] md:pb-0">
+      <div className="md:pl-60 transition-all duration-300 flex-1 flex flex-col pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0">
         <main className="flex-1">{children}</main>
       </div>
       <div className="md:hidden">

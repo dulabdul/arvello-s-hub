@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/Modal";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import {
   LayoutDashboard,
   Users,
@@ -28,6 +29,7 @@ const NAV_ITEMS = [
 ];
 
 const EXTRA_ITEMS = [
+  { label: "Klien", href: "/clients", icon: Users },
   { label: "Keuangan", href: "/finance", icon: Wallet },
   { label: "Proposal", href: "/proposals", icon: FolderGit2 },
   { label: "Domain Cloudflare", href: "/domains", icon: Globe },
@@ -38,6 +40,8 @@ export function MobileNav() {
   const pathname = usePathname();
   const router = useRouter();
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50">
@@ -154,13 +158,7 @@ export function MobileNav() {
           <div className="h-px bg-brand-border my-2" />
 
           <button
-            onClick={async () => {
-              if (confirm("Yakin ingin keluar?")) {
-                await fetch("/api/auth/logout", { method: "POST" });
-                setIsMoreOpen(false);
-                router.push("/login");
-              }
-            }}
+            onClick={() => setIsLogoutConfirmOpen(true)}
             className="flex items-center gap-4 px-4 py-3 rounded-xl text-brand-danger hover:bg-brand-danger/10 transition-colors active:scale-95 min-h-[52px]"
           >
             <div className="w-10 h-10 rounded-full bg-brand-danger/10 flex items-center justify-center shrink-0">
@@ -170,6 +168,27 @@ export function MobileNav() {
           </button>
         </div>
       </Modal>
+
+      <ConfirmModal
+        isOpen={isLogoutConfirmOpen}
+        onClose={() => setIsLogoutConfirmOpen(false)}
+        onConfirm={async () => {
+          setIsLoggingOut(true);
+          try {
+            await fetch("/api/auth/logout", { method: "POST" });
+            setIsLogoutConfirmOpen(false);
+            setIsMoreOpen(false);
+            router.push("/login");
+          } finally {
+            setIsLoggingOut(false);
+          }
+        }}
+        title="Keluar dari Akun"
+        description="Apakah Anda yakin ingin keluar dari sesi dashboard ini?"
+        confirmText="Logout"
+        variant="danger"
+        loading={isLoggingOut}
+      />
     </div>
   );
 }

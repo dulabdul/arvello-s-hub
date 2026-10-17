@@ -1,9 +1,12 @@
 import React from "react";
+import { Loader2 } from "lucide-react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "outline" | "danger" | "ghost";
   size?: "sm" | "md" | "lg";
   icon?: React.ReactNode;
+  loading?: boolean;
+  loadingText?: string;
 }
 
 export function Button({
@@ -13,6 +16,8 @@ export function Button({
   icon,
   className = "",
   disabled,
+  loading = false,
+  loadingText,
   ...props
 }: ButtonProps) {
   const base =
@@ -37,14 +42,20 @@ export function Button({
       "text-brand-muted hover:bg-brand-bg hover:text-brand-text focus-visible:ring-brand-border",
   };
 
+  const isDisabled = disabled || loading;
+
   return (
     <button
       className={`${base} ${sizeClasses[size]} ${variants[variant]} ${className}`}
-      disabled={disabled}
+      disabled={isDisabled}
       {...props}
     >
-      {icon && <span className="shrink-0">{icon}</span>}
-      {children}
+      {loading ? (
+        <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+      ) : (
+        icon && <span className="shrink-0">{icon}</span>
+      )}
+      {loading && loadingText ? loadingText : children}
     </button>
   );
 }

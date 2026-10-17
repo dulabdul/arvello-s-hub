@@ -5,8 +5,10 @@ import { Topbar } from "@/components/modules/Topbar";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Input } from "@/components/ui/Input";
 import { ClientData } from "@/lib/db/store";
+import { toast } from "sonner";
 import {
   Users,
   Plus,
@@ -26,6 +28,7 @@ export default function ClientsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [clientToDelete, setClientToDelete] = useState<ClientData | null>(null);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -104,28 +107,45 @@ export default function ClientsPage() {
         }
       }
 
+      if (editingClient) {
+        toast.success("Data klien berhasil diperbarui");
+      } else {
+        toast.success("Klien baru berhasil ditambahkan");
+      }
+
       setIsModalOpen(false);
       fetchClients();
     } catch (err: unknown) {
       if (err instanceof Error) {
         setFormError(err.message);
+        toast.error(err.message);
       } else {
         setFormError("Terjadi kesalahan saat menyimpan");
+        toast.error("Terjadi kesalahan saat menyimpan klien");
       }
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDelete = async (id: string, name: string) => {
-    if (confirm(`Apakah Anda yakin ingin menghapus data klien "${name}"?`)) {
-      setDeletingId(id);
-      try {
-        await fetch(`/api/clients/${id}`, { method: "DELETE" });
+  const confirmDelete = async () => {
+    if (!clientToDelete) return;
+    setDeletingId(clientToDelete.id);
+    try {
+      const res = await fetch(`/api/clients/${clientToDelete.id}`, { method: "DELETE" });
+      if (res.ok) {
+        toast.success(`Data klien "${clientToDelete.name}" berhasil dihapus`);
+        setClientToDelete(null);
         fetchClients();
-      } finally {
-        setDeletingId(null);
+      } else {
+        const errData = await res.json().catch(() => null);
+        toast.error(errData?.error || "Gagal menghapus data klien");
       }
+    } catch (err) {
+      console.error(err);
+      toast.error("Terjadi kesalahan sistem saat menghapus klien");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -242,18 +262,20 @@ export default function ClientsPage() {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => openEditModal(client)}
-                      className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                      className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-indigo-600 active:scale-95 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-all"
                       title="Edit Data Klien"
+                      aria-label="Edit Data Klien"
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => handleDelete(client.id, client.name)}
+                      onClick={() => setClientToDelete(client)}
                       disabled={deletingId === client.id}
-                      className={`p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors ${deletingId === client.id ? 'opacity-50 cursor-wait' : ''}`}
+                      className={`w-10 h-10 flex items-center justify-center text-slate-400 hover:text-rose-600 active:scale-95 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-all ${deletingId === client.id ? 'opacity-50 cursor-wait' : ''}`}
                       title="Hapus Klien"
+                      aria-label="Hapus Klien"
                     >
-                      {deletingId === client.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                      {deletingId === client.id ? <Loader2 className="w-4 h-4 animate-spin text-rose-600" /> : <Trash2 className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
@@ -329,15 +351,34 @@ export default function ClientsPage() {
               variant="outline"
               size="sm"
               onClick={() => setIsModalOpen(false)}
+              disabled={saving}
             >
               Batal
             </Button>
-            <Button type="submit" variant="primary" size="sm" disabled={saving}>
-              {saving ? "Menyimpan..." : editingClient ? "Perbarui Klien" : "Simpan Klien"}
+            <Button
+              type="submit"
+              variant="primary"
+              size="sm"
+              loading={saving}
+              loadingText="Menyimpan..."
+            >
+              {editingClient ? "Perbarui Klien" : "Simpan Klien"}
             </Button>
           </div>
         </form>
       </Modal>
+
+      {/* Confirmation Modal Hapus Klien */}
+      <ConfirmModal
+        isOpen={!!clientToDelete}
+        onClose={() => setClientToDelete(null)}
+        onConfirm={confirmDelete}
+        title="Hapus Klien"
+        description={`Apakah Anda yakin ingin menghapus data klien "${clientToDelete?.name}"? Seluruh riwayat yang terhubung mungkin akan terpengaruh.`}
+        confirmText="Hapus Klien"
+        variant="danger"
+        loading={!!deletingId}
+      />
     </div>
   );
 }

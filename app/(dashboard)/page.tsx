@@ -108,77 +108,85 @@ export default function DashboardPage() {
         }
       />
 
-      <div className="p-6 max-w-7xl mx-auto w-full space-y-6">
-        {/* KPI Metrics Cards (12-column grid) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="p-4 sm:p-6 max-w-7xl mx-auto w-full space-y-4 sm:space-y-6">
+        {/* KPI Metrics Cards (Horizontal Snap-Scroll on Mobile, 4-Col Grid on Desktop) */}
+        <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-2 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-4 sm:overflow-visible sm:pb-0 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
           {/* Card 1: Proyek Aktif */}
-          <Card className="flex flex-col justify-between">
-            <div className="flex items-center justify-between text-brand-muted mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider">Proyek Aktif</span>
-              <div className="w-8 h-8 rounded-lg bg-brand-primary/10 text-brand-primary flex items-center justify-center">
-                <Briefcase className="w-4 h-4" />
+          <div className="min-w-[78vw] sm:min-w-0 snap-center">
+            <Card className="flex flex-col justify-between h-full">
+              <div className="flex items-center justify-between text-brand-muted mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider">Proyek Aktif</span>
+                <div className="w-8 h-8 rounded-lg bg-brand-primary/10 text-brand-primary flex items-center justify-center">
+                  <Briefcase className="w-4 h-4" />
+                </div>
               </div>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-brand-text">
-                {loading ? "..." : data?.activeProjectsCount}
-              </p>
-              <p className="text-xs text-brand-muted mt-1 flex items-center gap-1">
-                <Clock className="w-3 h-3 text-brand-primary" />
-                Dalam pengerjaan & negosiasi
-              </p>
-            </div>
-          </Card>
+              <div>
+                <p className="text-2xl font-bold text-brand-text">
+                  {loading ? "..." : data?.activeProjectsCount}
+                </p>
+                <p className="text-xs text-brand-muted mt-1 flex items-center gap-1">
+                  <Clock className="w-3 h-3 text-brand-primary" />
+                  Dalam pengerjaan & negosiasi
+                </p>
+              </div>
+            </Card>
+          </div>
 
           {/* Card 2: Invoice Tertunda */}
-          <Card className="flex flex-col justify-between">
-            <div className="flex items-center justify-between text-brand-muted mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider">Invoice Tertunda</span>
-              <div className="w-8 h-8 rounded-lg bg-brand-warning/10 text-brand-warning flex items-center justify-center">
-                <Receipt className="w-4 h-4" />
+          <div className="min-w-[78vw] sm:min-w-0 snap-center">
+            <Card className="flex flex-col justify-between h-full">
+              <div className="flex items-center justify-between text-brand-muted mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider">Invoice Tertunda</span>
+                <div className="w-8 h-8 rounded-lg bg-brand-warning/10 text-brand-warning flex items-center justify-center">
+                  <Receipt className="w-4 h-4" />
+                </div>
               </div>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-brand-text">
-                {loading ? "..." : formatCurrency(data?.unpaidInvoicesAmount || 0)}
-              </p>
-              <p className="text-xs text-brand-warning mt-1 font-medium">
-                {data?.unpaidInvoicesCount} invoice menunggu pembayaran
-              </p>
-            </div>
-          </Card>
+              <div>
+                <p className="text-2xl font-bold text-brand-text">
+                  {loading ? "..." : formatCurrency(data?.unpaidInvoicesAmount || 0)}
+                </p>
+                <p className="text-xs text-brand-warning mt-1 font-medium">
+                  {data?.unpaidInvoicesCount} invoice menunggu pembayaran
+                </p>
+              </div>
+            </Card>
+          </div>
 
           {/* Card 3: Profit Bersih */}
-          <Card className="flex flex-col justify-between">
-            <div className="flex items-center justify-between text-brand-muted mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider">Profit Bersih</span>
-              <div className="w-8 h-8 rounded-lg bg-brand-success/10 text-brand-success flex items-center justify-center">
-                <TrendingUp className="w-4 h-4" />
+          <div className="min-w-[78vw] sm:min-w-0 snap-center">
+            <Card className="flex flex-col justify-between h-full">
+              <div className="flex items-center justify-between text-brand-muted mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider">Profit Bersih</span>
+                <div className="w-8 h-8 rounded-lg bg-brand-success/10 text-brand-success flex items-center justify-center">
+                  <TrendingUp className="w-4 h-4" />
+                </div>
               </div>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-brand-success">
-                {loading ? "..." : formatCurrency(data?.netProfitAmount || 0)}
-              </p>
-              <p className="text-xs text-brand-muted mt-1">Pemasukan dikurangi pengeluaran</p>
-            </div>
-          </Card>
+              <div>
+                <p className="text-2xl font-bold text-brand-success">
+                  {loading ? "..." : formatCurrency(data?.netProfitAmount || 0)}
+                </p>
+                <p className="text-xs text-brand-muted mt-1">Pemasukan dikurangi pengeluaran</p>
+              </div>
+            </Card>
+          </div>
 
           {/* Card 4: Klien Aktif */}
-          <Card className="flex flex-col justify-between">
-            <div className="flex items-center justify-between text-brand-muted mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider">Total Klien</span>
-              <div className="w-8 h-8 rounded-lg bg-brand-info/10 text-brand-info flex items-center justify-center">
-                <Users className="w-4 h-4" />
+          <div className="min-w-[78vw] sm:min-w-0 snap-center">
+            <Card className="flex flex-col justify-between h-full">
+              <div className="flex items-center justify-between text-brand-muted mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider">Total Klien</span>
+                <div className="w-8 h-8 rounded-lg bg-brand-info/10 text-brand-info flex items-center justify-center">
+                  <Users className="w-4 h-4" />
+                </div>
               </div>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-brand-text">
-                {loading ? "..." : data?.totalClients}
-              </p>
-              <p className="text-xs text-brand-muted mt-1">Klien dengan proyek atau tagihan aktif</p>
-            </div>
-          </Card>
+              <div>
+                <p className="text-2xl font-bold text-brand-text">
+                  {loading ? "..." : data?.totalClients}
+                </p>
+                <p className="text-xs text-brand-muted mt-1">Klien dengan proyek atau tagihan aktif</p>
+              </div>
+            </Card>
+          </div>
         </div>
 
         {/* 2-Column Section: Proyek Berjalan vs Invoice Terbaru */}
@@ -299,11 +307,12 @@ export default function DashboardPage() {
                           </p>
                         </div>
 
-                        <div className="flex items-center gap-1.5 shrink-0">
+                        <div className="flex items-center gap-1 shrink-0">
                           <button
                             onClick={() => handleDownloadPDF(inv)}
-                            className="p-2 text-brand-muted hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
+                            className="w-9 h-9 flex items-center justify-center text-brand-muted hover:text-brand-primary active:scale-95 hover:bg-brand-primary/10 rounded-lg transition-all"
                             title="Unduh PDF"
+                            aria-label="Unduh PDF"
                           >
                             <FileDown className="w-4 h-4" />
                           </button>
@@ -311,8 +320,9 @@ export default function DashboardPage() {
                           {!isPaid && (
                             <button
                               onClick={() => handleMarkPaid(inv.id)}
-                              className="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-lg transition-colors"
+                              className="w-9 h-9 flex items-center justify-center text-emerald-600 active:scale-95 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-lg transition-all"
                               title="Tandai Lunas"
+                              aria-label="Tandai Lunas"
                             >
                               <CheckCircle2 className="w-4 h-4" />
                             </button>

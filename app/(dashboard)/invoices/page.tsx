@@ -6,9 +6,11 @@ import { Topbar } from "@/components/modules/Topbar";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Input, Select, CurrencyInput } from "@/components/ui/Input";
 import { InvoiceData, ClientData, ProjectData } from "@/lib/db/store";
 import { INVOICE_STATUS_MAP } from "@/types/status";
+import { toast } from "sonner";
 import {
   formatCurrency,
   InvoiceItem,
@@ -54,6 +56,7 @@ function InvoicesContent() {
   const [formError, setFormError] = useState("");
   const [markingPaid, setMarkingPaid] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [invoiceToDelete, setInvoiceToDelete] = useState<InvoiceData | null>(null);
 
   const openCreateModal = (
     defClientId?: string,
@@ -225,13 +228,16 @@ function InvoicesContent() {
         throw new Error(err.error || "Gagal membuat invoice");
       }
 
+      toast.success("Invoice berhasil dibuat!");
       setIsModalOpen(false);
       fetchData();
     } catch (err: unknown) {
       if (err instanceof Error) {
         setFormError(err.message);
+        toast.error(err.message);
       } else {
         setFormError("Gagal menyimpan invoice");
+        toast.error("Gagal menyimpan invoice");
       }
     } finally {
       setSaving(false);
@@ -247,26 +253,38 @@ function InvoicesContent() {
         body: JSON.stringify({ status: "PAID" }),
       });
       if (res.ok) {
+        toast.success("Invoice telah ditandai Lunas!");
         await fetchData();
+      } else {
+        const errData = await res.json().catch(() => null);
+        toast.error(errData?.error || "Gagal memperbarui status invoice");
       }
     } catch (err) {
       console.error(err);
+      toast.error("Terjadi kesalahan sistem saat memperbarui invoice");
     } finally {
       setMarkingPaid(null);
     }
   };
 
-  const handleDelete = async (id: string, num: string) => {
-    if (confirm(`Hapus invoice ${num}?`)) {
-      setDeletingId(id);
-      try {
-        await fetch(`/api/invoices/${id}`, { method: "DELETE" });
+  const confirmDeleteInvoice = async () => {
+    if (!invoiceToDelete) return;
+    setDeletingId(invoiceToDelete.id);
+    try {
+      const res = await fetch(`/api/invoices/${invoiceToDelete.id}`, { method: "DELETE" });
+      if (res.ok) {
+        toast.success(`Invoice "${invoiceToDelete.number}" berhasil dihapus`);
+        setInvoiceToDelete(null);
         await fetchData();
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setDeletingId(null);
+      } else {
+        const errData = await res.json().catch(() => null);
+        toast.error(errData?.error || "Gagal menghapus invoice");
       }
+    } catch (err) {
+      console.error(err);
+      toast.error("Terjadi kesalahan sistem saat menghapus invoice");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -401,7 +419,8 @@ function InvoicesContent() {
           </div>
         ) : (
           <Card className="p-0 overflow-hidden">
-            <div className="overflow-x-auto">
+            {/* Desktop Table View */}
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-500 uppercase font-semibold border-b border-slate-200 dark:border-slate-800">
                   <tr>
@@ -488,7 +507,7 @@ function InvoicesContent() {
                           )}
 
                           <button
-                            onClick={() => handleDelete(inv.id, inv.number)}
+                            onClick={() => setInvoiceToDelete(inv)}
                             disabled={deletingId === inv.id}
                             className={`p-1.5 text-slate-400 hover:text-rose-600 rounded ${deletingId === inv.id ? 'opacity-50 cursor-wait text-rose-600' : ''}`}
                             title="Hapus Invoice"
@@ -501,6 +520,96 @@ function InvoicesContent() {
                   })}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile Native Card List View */}
+            <div className="sm:hidden flex flex-col divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
+              {filtered.map((inv) => {
+                const statusMeta = INVOICE_STATUS_MAP[inv.status];
+                const isPaid = inv.status === "PAID";
+                return (
+                  <div key={inv.id} className="p-4 flex flex-col gap-3 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-bold text-sm text-indigo-600 dark:text-indigo-400">
+                          {inv.number}
+                        </span>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${statusMeta?.badgeClass}`}>
+                          {statusMeta?.label}
+                        </span>
+                      </div>
+                      <span className="text-[11px] text-slate-400">
+                        {inv.createdAt.split("T")[0]}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-sm text-slate-900 dark:text-slate-100 truncate">
+                          {inv.clientName}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5 truncate">
+                          <Building className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span className="truncate">{inv.projectName}</span>
+                        </p>
+                        <p className="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
+                          <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
+                          Jatuh Tempo: {inv.dueDate}
+                        </p>
+                      </div>
+
+                      <div className="text-right shrink-0">
+                        <p className="text-[10px] text-slate-400 uppercase tracking-wider">Total Tagihan</p>
+                        <p className="text-base font-bold text-slate-900 dark:text-slate-100 mt-0.5">
+                          {formatCurrency(inv.total, inv.currency)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Mobile Action Buttons with proper hit targets */}
+                    <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          onClick={() => handleDownloadPDF(inv)}
+                          size="sm"
+                          variant="outline"
+                          className="min-h-[40px] px-3 text-xs"
+                          icon={<FileDown className="w-4 h-4" />}
+                        >
+                          PDF
+                        </Button>
+
+                        {!isPaid ? (
+                          <Button
+                            onClick={() => handleMarkPaid(inv.id)}
+                            size="sm"
+                            variant="secondary"
+                            disabled={markingPaid === inv.id}
+                            className={`min-h-[40px] px-3 text-xs text-emerald-700 hover:bg-emerald-100 dark:text-emerald-300 ${markingPaid === inv.id ? 'opacity-75 cursor-wait' : ''}`}
+                            icon={markingPaid === inv.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                          >
+                            {markingPaid === inv.id ? "Memproses..." : "Tandai Lunas"}
+                          </Button>
+                        ) : (
+                          <span className="text-xs font-semibold text-emerald-600 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40">
+                            <CheckCircle2 className="w-4 h-4" /> Lunas
+                          </span>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={() => setInvoiceToDelete(inv)}
+                        disabled={deletingId === inv.id}
+                        className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-rose-600 active:scale-95 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                        title="Hapus Invoice"
+                        aria-label="Hapus Invoice"
+                      >
+                        {deletingId === inv.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </Card>
         )}
@@ -596,6 +705,7 @@ function InvoicesContent() {
                   <div className="col-span-3 sm:col-span-2">
                     <input
                       type="number"
+                      inputMode="numeric"
                       min={0}
                       placeholder="Qty"
                       required
@@ -613,12 +723,14 @@ function InvoicesContent() {
                       className="!h-8 !text-xs !pl-8"
                     />
                   </div>
-                  <div className="col-span-2 sm:col-span-1 text-center">
+                  <div className="col-span-2 sm:col-span-1 flex items-center justify-center">
                     <button
                       type="button"
                       onClick={() => removeItemRow(idx)}
                       disabled={items.length <= 1}
-                      className="p-1 text-slate-400 hover:text-rose-600 disabled:opacity-30"
+                      className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-rose-600 active:scale-95 rounded-lg disabled:opacity-30 transition-colors"
+                      title="Hapus baris item"
+                      aria-label="Hapus baris item"
                     >
                       <Trash className="w-4 h-4" />
                     </button>
@@ -677,15 +789,34 @@ function InvoicesContent() {
               variant="outline"
               size="sm"
               onClick={() => setIsModalOpen(false)}
+              disabled={saving}
             >
               Batal
             </Button>
-            <Button type="submit" variant="primary" size="sm" disabled={saving}>
-              {saving ? "Menyimpan..." : "Buat & Terbitkan Invoice"}
+            <Button
+              type="submit"
+              variant="primary"
+              size="sm"
+              loading={saving}
+              loadingText="Menyimpan..."
+            >
+              Buat & Terbitkan Invoice
             </Button>
           </div>
         </form>
       </Modal>
+
+      {/* Confirmation Modal Hapus Invoice */}
+      <ConfirmModal
+        isOpen={!!invoiceToDelete}
+        onClose={() => setInvoiceToDelete(null)}
+        onConfirm={confirmDeleteInvoice}
+        title="Hapus Invoice"
+        description={`Apakah Anda yakin ingin menghapus invoice "${invoiceToDelete?.number}"? Data pembayaran dan arus kas yang terhubung dengan invoice ini akan diperbarui.`}
+        confirmText="Hapus Invoice"
+        variant="danger"
+        loading={!!deletingId}
+      />
     </div>
   );
 }

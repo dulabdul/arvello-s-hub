@@ -170,6 +170,8 @@ model Domain {
   name        String       @unique // e.g. example.com
   zoneId      String?      // Cloudflare Zone ID
   status      DomainStatus @default(PENDING)
+  registrar   String?      // e.g. Namecheap, GoDaddy, RumahWeb, Cloudflare, Hostinger
+  expiresAt   DateTime?    // Expired Date
   
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt

@@ -5,8 +5,10 @@ import { useParams, useRouter } from "next/navigation";
 import { Topbar } from "@/components/modules/Topbar";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Input, Select } from "@/components/ui/Input";
 import { ArrowLeft, Trash2, Plus, Loader2, Cloud, CloudOff } from "lucide-react";
+import { toast } from "sonner";
 
 interface DnsRecord {
   id: string;
@@ -28,6 +30,7 @@ export default function DomainDnsPage() {
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [recordToDelete, setRecordToDelete] = useState<DnsRecord | null>(null);
 
   // New Record Form State
   const [type, setType] = useState("A");
@@ -79,6 +82,7 @@ export default function DomainDnsPage() {
       
       if (!res.ok) throw new Error(data.error || "Gagal menambah record");
       
+      toast.success("DNS Record berhasil ditambahkan ke Cloudflare!");
       // Reset form and refresh
       setType("A");
       setName("");
@@ -87,27 +91,30 @@ export default function DomainDnsPage() {
       fetchData();
     } catch (err: any) {
       setError(err.message);
+      toast.error(err.message || "Gagal menambah record");
     } finally {
       setAdding(false);
     }
   };
 
-  const handleDeleteRecord = async (recordId: string) => {
-    if (!confirm("Hapus DNS Record ini?")) return;
-    setDeletingId(recordId);
+  const confirmDeleteRecord = async () => {
+    if (!recordToDelete) return;
+    setDeletingId(recordToDelete.id);
     try {
-      const res = await fetch(`/api/domains/${domainId}/dns?recordId=${recordId}`, {
+      const res = await fetch(`/api/domains/${domainId}/dns?recordId=${recordToDelete.id}`, {
         method: "DELETE"
       });
       if (res.ok) {
-        setRecords(records.filter(r => r.id !== recordId));
+        setRecords(records.filter(r => r.id !== recordToDelete.id));
+        toast.success(`DNS Record ${recordToDelete.type} (${recordToDelete.name}) berhasil dihapus`);
+        setRecordToDelete(null);
       } else {
-        const data = await res.json();
-        alert(data.error || "Gagal menghapus record");
+        const data = await res.json().catch(() => null);
+        toast.error(data?.error || "Gagal menghapus record");
       }
     } catch (err) {
       console.error(err);
-      alert("Terjadi kesalahan");
+      toast.error("Terjadi kesalahan sistem saat menghapus record");
     } finally {
       setDeletingId(null);
     }
@@ -218,7 +225,7 @@ export default function DomainDnsPage() {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <button
-                          onClick={() => handleDeleteRecord(record.id)}
+                          onClick={() => setRecordToDelete(record)}
                           disabled={deletingId === record.id}
                           className={`p-1.5 text-slate-400 hover:text-rose-500 transition-colors ${deletingId === record.id ? 'opacity-50 cursor-wait' : ''}`}
                           title="Hapus Record"
@@ -234,6 +241,18 @@ export default function DomainDnsPage() {
           )}
         </Card>
       </div>
+
+      {/* Confirmation Modal Hapus DNS */}
+      <ConfirmModal
+        isOpen={!!recordToDelete}
+        onClose={() => setRecordToDelete(null)}
+        onConfirm={confirmDeleteRecord}
+        title="Hapus DNS Record"
+        description={`Apakah Anda yakin ingin menghapus record ${recordToDelete?.type} (${recordToDelete?.name})? Aksi ini akan langsung terhubung ke Cloudflare.`}
+        confirmText="Hapus Record"
+        variant="danger"
+        loading={!!deletingId}
+      />
     </div>
   );
 }
