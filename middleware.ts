@@ -16,6 +16,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/manifest.webmanifest') ||
     pathname.startsWith('/manifest.json') ||
     pathname.startsWith('/icons/') ||
+    pathname.startsWith('/splash/') ||
     pathname.startsWith('/api/proposals/public') ||
     /\.(?:png|jpg|jpeg|gif|webp|svg|ico|webmanifest|json)$/i.test(pathname)
   ) {
@@ -53,9 +54,9 @@ export const config = {
      * Match all request paths except for the ones starting with:
      * - _next/static (static files)
      * - _next/image (image optimization files)
-     * - favicon.ico, sw.js, manifest.webmanifest, manifest.json, icons/
+     * - favicon.ico, sw.js, manifest.webmanifest, manifest.json, icons/, splash/
      * - public files with extensions (e.g. .svg, .png, .jpg, .jpeg, .gif, .webp, .ico, .webmanifest)
      */
-    '/((?!_next/static|_next/image|favicon.ico|sw.js|manifest.webmanifest|manifest.json|icons/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|sw.js|manifest.webmanifest|manifest.json|icons/|splash/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest)$).*)',
   ],
 };

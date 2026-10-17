@@ -3,6 +3,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "sonner";
 import { PwaProvider } from "@/components/providers/PwaProvider";
+import { SplashScreen } from "@/components/ui/SplashScreen";
 import "./globals.css";
 
 const inter = Inter({
@@ -33,9 +34,25 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: "Arvello's Hub",
-    startupImage: "/icons/icon-512x512.png",
+    startupImage: [
+      {
+        url: "/splash/apple-splash-1179x2556.png",
+        media: "(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)",
+      },
+      {
+        url: "/splash/apple-splash-1290x2796.png",
+        media: "(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)",
+      },
+      {
+        url: "/splash/apple-splash-1170x2532.png",
+        media: "(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)",
+      },
+      {
+        url: "/splash/apple-splash-universal.png",
+      },
+    ],
   },
   formatDetection: {
     telephone: false,
@@ -62,6 +79,7 @@ export default function RootLayout({
   return (
     <html lang="id" className={`${inter.variable} ${playfair.variable} h-full`}>
       <body className="min-h-full flex flex-col font-sans antialiased bg-brand-bg text-brand-text">
+        <SplashScreen />
         <NextTopLoader
           color="#0047AB"
           initialPosition={0.08}

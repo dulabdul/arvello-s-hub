@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Platform web personal untuk mengelola klien, proyek, invoice, keuangan, dan domain.",
     start_url: "/",
     display: "standalone",
-    background_color: "#121822",
+    background_color: "#FFFFFF",
     theme_color: "#0047AB",
     orientation: "portrait-primary",
     scope: "/",

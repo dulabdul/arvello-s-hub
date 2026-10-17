@@ -1,4 +1,4 @@
-const CACHE_NAME = "arvello-hub-v1";
+const CACHE_NAME = "arvello-hub-v2";
 
 // Essential static shell assets to pre-cache on install
 const PRECACHE_ASSETS = [
@@ -8,6 +8,8 @@ const PRECACHE_ASSETS = [
   "/icons/icon-512x512.png",
   "/icons/apple-touch-icon.png",
   "/icons/favicon-32x32.png",
+  "/splash/apple-splash-universal.png",
+  "/splash/apple-splash-1179x2556.png",
   "/logo.png"
 ];
 
