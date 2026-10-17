@@ -106,27 +106,27 @@ export function RegistrarManagerModal({
       description="Tambahkan atau kustomisasi daftar registrar domain beserta warna identitasnya."
       maxWidth="md"
     >
-      <div className="space-y-5">
+      <div className="space-y-4">
         {/* Form Tambah Registrar Baru */}
-        <div className="bg-slate-50 dark:bg-slate-800/40 p-4 rounded-xl border border-slate-200 dark:border-slate-700/80 space-y-3">
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+        <div className="bg-slate-50 dark:bg-slate-800/40 p-3.5 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
+          <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
             Tambah Registrar Baru
           </label>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <input
               type="text"
-              placeholder="Contoh: Porkbun, Dewaweb, OVH..."
+              placeholder="Nama registrar..."
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-              className="flex-1 h-10 px-3 rounded-lg border text-sm text-brand-text bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 focus:outline-none focus:border-indigo-500"
+              className="flex-1 h-11 px-3.5 rounded-xl border text-sm text-brand-text bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 focus:outline-none focus:border-brand-primary transition-colors"
             />
             <Button
               type="button"
               onClick={handleAdd}
               variant="primary"
               disabled={!newName.trim() || saving}
-              className="h-10 px-4"
+              className="h-11 px-4 text-sm font-semibold rounded-xl shrink-0"
               icon={<Plus className="w-4 h-4" />}
             >
               Tambah
@@ -134,97 +134,144 @@ export function RegistrarManagerModal({
           </div>
 
           {/* Color Palette Selector */}
-          <div>
-            <label className="text-[11px] font-medium text-slate-500 block mb-1.5">
-              Pilih Warna Aksen:
-            </label>
-            <div className="flex items-center gap-2 flex-wrap">
-              {PRESET_COLORS.map((preset) => (
-                <button
-                  key={preset.hex}
-                  type="button"
-                  onClick={() => setSelectedColor(preset.hex)}
-                  className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${
-                    selectedColor === preset.hex
-                      ? "ring-2 ring-offset-2 ring-indigo-500 scale-110"
-                      : "hover:scale-105"
-                  }`}
-                  style={{ backgroundColor: preset.hex }}
-                  title={preset.label}
-                >
-                  {selectedColor === preset.hex && (
-                    <Check className="w-3.5 h-3.5 text-white drop-shadow-sm" strokeWidth={3} />
-                  )}
-                </button>
-              ))}
+          <div className="pt-1">
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-[11px] font-semibold text-slate-500">
+                Pilih Warna Aksen:
+              </label>
+              <span 
+                className="text-[10px] font-mono px-2 py-0.5 rounded-md font-bold border transition-colors"
+                style={{ 
+                  color: selectedColor, 
+                  backgroundColor: `${selectedColor}15`,
+                  borderColor: `${selectedColor}30`
+                }}
+              >
+                {selectedColor.toUpperCase()}
+              </span>
+            </div>
 
-              {/* Custom Color Input */}
-              <div className="flex items-center gap-1.5 ml-1">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1.5 pt-0.5 no-scrollbar touch-pan-x">
+              {PRESET_COLORS.map((preset) => {
+                const isSelected = selectedColor.toLowerCase() === preset.hex.toLowerCase();
+                return (
+                  <button
+                    key={preset.hex}
+                    type="button"
+                    onClick={() => setSelectedColor(preset.hex)}
+                    className={`w-8 h-8 min-w-[32px] min-h-[32px] rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                      isSelected
+                        ? "ring-2 ring-offset-2 ring-brand-primary scale-110 shadow-sm"
+                        : "hover:scale-105 opacity-85 hover:opacity-100"
+                    }`}
+                    style={{ backgroundColor: preset.hex }}
+                    title={preset.label}
+                    aria-label={preset.label}
+                  >
+                    {isSelected && (
+                      <Check className="w-4 h-4 text-white drop-shadow-sm" strokeWidth={3} />
+                    )}
+                  </button>
+                );
+              })}
+
+              {/* Custom Color Picker Swatch */}
+              <label
+                className={`relative w-8 h-8 min-w-[32px] min-h-[32px] rounded-full flex items-center justify-center cursor-pointer transition-all border border-slate-300 dark:border-slate-600 shrink-0 ${
+                  !PRESET_COLORS.some((p) => p.hex.toLowerCase() === selectedColor.toLowerCase())
+                    ? "ring-2 ring-offset-2 ring-brand-primary scale-110 shadow-sm"
+                    : "hover:scale-105"
+                }`}
+                style={{
+                  background: !PRESET_COLORS.some((p) => p.hex.toLowerCase() === selectedColor.toLowerCase())
+                    ? selectedColor
+                    : "conic-gradient(from 180deg at 50% 50%, #FF0000 0deg, #FFFF00 60deg, #00FF00 120deg, #00FFFF 180deg, #0000FF 240deg, #FF00FF 300deg, #FF0000 360deg)",
+                }}
+                title="Pilih warna kustom"
+              >
                 <input
                   type="color"
                   value={selectedColor}
                   onChange={(e) => setSelectedColor(e.target.value)}
-                  className="w-7 h-7 rounded-full border border-slate-300 cursor-pointer overflow-hidden p-0"
-                  title="Warna kustom"
+                  className="sr-only"
                 />
-                <span className="text-[10px] font-mono text-slate-400 uppercase">
-                  {selectedColor}
-                </span>
-              </div>
+                {!PRESET_COLORS.some((p) => p.hex.toLowerCase() === selectedColor.toLowerCase()) ? (
+                  <Check className="w-4 h-4 text-white drop-shadow-sm" strokeWidth={3} />
+                ) : (
+                  <span className="w-2.5 h-2.5 rounded-full bg-white shadow-xs pointer-events-none" />
+                )}
+              </label>
             </div>
           </div>
         </div>
 
         {/* Daftar Registrar Saat Ini */}
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <div className="flex items-center justify-between mb-2 px-0.5">
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
               Daftar Registrar Aktif ({registrars.length})
             </span>
             <button
               type="button"
               onClick={handleResetDefaults}
-              className="text-[11px] text-slate-400 hover:text-indigo-600 flex items-center gap-1 transition-colors"
+              className="text-xs text-brand-muted hover:text-brand-primary flex items-center gap-1.5 transition-colors cursor-pointer py-1"
             >
-              <RefreshCw className="w-3 h-3" /> Reset ke Bawaan
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Reset Bawaan</span>
             </button>
           </div>
 
-          <div className="bg-brand-bg/60 border border-brand-border rounded-xl p-3 min-h-[140px] max-h-[260px] overflow-y-auto flex flex-wrap gap-2 content-start relative">
+          <div className="bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 min-h-[140px] max-h-[260px] overflow-y-auto overscroll-contain relative">
             {saving && (
-              <div className="absolute inset-0 bg-brand-surface/60 backdrop-blur-xs flex items-center justify-center z-10 rounded-xl">
+              <div className="absolute inset-0 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xs flex items-center justify-center z-10 rounded-2xl">
                 <Loader2 className="w-5 h-5 text-brand-primary animate-spin" />
               </div>
             )}
-            {registrars.map((reg) => (
-              <div
-                key={reg.id}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all shadow-xs group bg-white dark:bg-slate-900"
-                style={{
-                  borderColor: `${reg.color}40`,
-                }}
-              >
-                <span
-                  className="w-2.5 h-2.5 rounded-full shrink-0"
-                  style={{ backgroundColor: reg.color }}
-                />
-                <span style={{ color: reg.color }}>{reg.name}</span>
-                <button
-                  type="button"
-                  onClick={() => handleRemove(reg.id, reg.name)}
-                  className="w-5 h-5 min-w-[20px] min-h-[20px] rounded-full flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 active:scale-95 transition-all ml-1"
-                  title={`Hapus ${reg.name}`}
-                  aria-label={`Hapus ${reg.name}`}
-                >
-                  <X className="w-3 h-3" />
-                </button>
+            
+            {registrars.length === 0 ? (
+              <div className="py-10 text-center text-xs text-slate-400">
+                Belum ada registrar yang didaftarkan.
               </div>
-            ))}
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                {registrars.map((reg) => (
+                  <div
+                    key={reg.id}
+                    className="flex items-center justify-between px-3 py-2 rounded-xl bg-white dark:bg-slate-900 border transition-all shadow-xs group"
+                    style={{ borderColor: `${reg.color}35` }}
+                  >
+                    <div className="flex items-center gap-2 min-w-0 pr-1">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs"
+                        style={{ backgroundColor: reg.color }}
+                      />
+                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
+                        {reg.name}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemove(reg.id, reg.name)}
+                      className="w-6 h-6 min-w-[24px] min-h-[24px] rounded-lg flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 active:scale-95 transition-all cursor-pointer"
+                      title={`Hapus ${reg.name}`}
+                      aria-label={`Hapus ${reg.name}`}
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="flex justify-end pt-2 border-t border-brand-border">
-          <Button type="button" onClick={onClose} variant="primary" className="w-full sm:w-auto h-11 sm:h-9 text-sm font-semibold">
+        <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+          <Button
+            type="button"
+            onClick={onClose}
+            variant="primary"
+            className="w-full h-11 text-sm font-semibold rounded-xl"
+          >
             Selesai
           </Button>
         </div>
